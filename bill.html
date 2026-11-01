@@ -253,6 +253,7 @@ function saveCurrentBill(){
  const hist=readHistory(), idx=hist.findIndex(x=>x.id===data.id);
  if(idx>=0) hist[idx]=data; else hist.unshift(data);
  writeHistory(hist); currentSavedBillId=data.id;
+ if(window.cloudSyncBills) window.cloudSyncBills(hist); // PUSH TO FIREBASE
  if(!val('billNo')) document.getElementById('billNo').value=data.billNo;
  update(); return data;
 }
@@ -298,5 +299,48 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+<!-- FIREBASE REALTIME SYNC (BILLS) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyCU9P4z-hBu7sho7tT55GkLBANsd2Ghs-w",
+    authDomain: "pos-app-cf53e.firebaseapp.com",
+    projectId: "pos-app-cf53e",
+    storageBucket: "pos-app-cf53e.firebasestorage.app",
+    messagingSenderId: "956442371301",
+    appId: "1:956442371301:web:54609b4caca6cf08c3600c",
+    measurementId: "G-FL8JTQ4NEC"
+  };
+
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Expose sync function globally so other scripts can call it
+  window.cloudSyncBills = async function(data) {
+    try {
+      await setDoc(doc(db, "nawab_kurta", "bills_backup"), { data: data });
+    } catch(e) {
+      console.error("Cloud Sync Error:", e);
+    }
+  };
+
+  // Listen for real-time updates from other devices
+  onSnapshot(doc(db, "nawab_kurta", "bills_backup"), (docSnap) => {
+    if (docSnap.exists()) {
+      const cloudData = docSnap.data().data || [];
+      // Only update and re-render if the cloud data is different from local data
+      if (JSON.stringify(cloudData) !== JSON.stringify(readHistory())) {
+        writeHistory(cloudData);
+        if (typeof renderHistory === 'function') renderHistory();
+      }
+    }
+  });
+</script>
+
 </body>
 </html>
