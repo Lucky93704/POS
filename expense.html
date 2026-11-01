@@ -85,11 +85,6 @@ button:active{opacity:0.8}
     <h2>Expense History</h2><div style="font-size:14px">Total: <strong id="expTotalSales">₹0.00</strong></div>
   </div>
   <div id="expenseList" class="note">No expenses saved yet.</div>
-  
-  <div class="actions" style="margin-top:20px;border-top:1px solid #eee;padding-top:16px;">
-    <button class="primary" id="cloudBackupBtn">☁️ Backup to Cloud</button>
-    <button class="primary" id="cloudRestoreBtn">☁️ Restore from Cloud</button>
-  </div>
  </section>
 </div>
 
@@ -125,7 +120,9 @@ document.getElementById('saveExpenseBtn').onclick = () => {
   const date = document.getElementById('expDate').value, amount = Number(document.getElementById('expAmount').value), desc = document.getElementById('expDesc').value.trim();
   if (!amount || amount <= 0 || !desc) return toast('Please enter a valid amount and description.');
   const exp = { id: 'exp-' + Date.now(), date, amount, desc }, history = readExpenses();
-  history.unshift(exp); writeExpenses(history);
+  history.unshift(exp); 
+  writeExpenses(history);
+  if(window.cloudSyncExpenses) window.cloudSyncExpenses(history); // SYNC TO CLOUD
   document.getElementById('expAmount').value = ''; document.getElementById('expDesc').value = '';
   toast('Expense saved'); renderExpenses();
 };
@@ -139,7 +136,15 @@ function renderExpenses() {
     row.innerHTML = `<div><strong>${x.desc} · ${money(x.amount)}</strong><small>${formatDate(x.date)}</small></div>`;
     const actions = document.createElement('div'); actions.className = 'actions';
     const del = document.createElement('button'); del.className = 'danger'; del.textContent = 'Delete';
-    del.onclick = async () => { if(await askConfirm('Delete expense?')){ writeExpenses(readExpenses().filter(y=>y.id!==x.id)); renderExpenses(); toast('Deleted'); } };
+    del.onclick = async () => { 
+      if(await askConfirm('Delete expense?')){ 
+        const newHist = readExpenses().filter(y=>y.id!==x.id); 
+        writeExpenses(newHist); 
+        if(window.cloudSyncExpenses) window.cloudSyncExpenses(newHist); // SYNC TO CLOUD
+        renderExpenses(); 
+        toast('Deleted'); 
+      } 
+    };
     actions.append(del); row.append(actions); list.append(row);
   });
   totalEl.textContent = money(total);
@@ -147,11 +152,12 @@ function renderExpenses() {
 renderExpenses();
 </script>
 
-<!-- FIREBASE CLOUD BACKUP SCRIPT -->
+<!-- FIREBASE REALTIME SYNC (EXPENSES) -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+  
   const firebaseConfig = {
     apiKey: "AIzaSyCU9P4z-hBu7sho7tT55GkLBANsd2Ghs-w",
     authDomain: "pos-app-cf53e.firebaseapp.com",
@@ -162,42 +168,30 @@ renderExpenses();
     measurementId: "G-FL8JTQ4NEC"
   };
 
+
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Backup Expenses to Cloud
-  document.getElementById('cloudBackupBtn').addEventListener('click', async () => {
+  // Expose sync function globally
+  window.cloudSyncExpenses = async function(data) {
     try {
-      toast('Uploading to Cloud...');
-      const data = readExpenses(); 
       await setDoc(doc(db, "nawab_kurta", "expenses_backup"), { data: data });
-      toast('Cloud Backup Successful! ☁️');
-    } catch (e) {
-      toast('Error saving to cloud. Check console.');
-      console.error("Firebase Error:", e);
+    } catch(e) {
+      console.error("Cloud Sync Error:", e);
     }
-  });
+  };
 
-  // Restore Expenses from Cloud
-  document.getElementById('cloudRestoreBtn').addEventListener('click', async () => {
-    if(await askConfirm('Restore from Cloud? This will overwrite your current expenses on this device.', 'Cloud Restore')) {
-      try {
-        toast('Downloading from Cloud...');
-        const docSnap = await getDoc(doc(db, "nawab_kurta", "expenses_backup"));
-        
-        if (docSnap.exists()) {
-          writeExpenses(docSnap.data().data); 
-          renderExpenses(); 
-          toast('Cloud Restore Complete! ✅');
-        } else {
-          toast('No cloud backup found.');
-        }
-      } catch (e) {
-        toast('Error downloading from cloud.');
-        console.error("Firebase Error:", e);
+  // Listen for real-time updates from other devices
+  onSnapshot(doc(db, "nawab_kurta", "expenses_backup"), (docSnap) => {
+    if (docSnap.exists()) {
+      const cloudData = docSnap.data().data || [];
+      if (JSON.stringify(cloudData) !== JSON.stringify(readExpenses())) {
+        writeExpenses(cloudData);
+        if (typeof renderExpenses === 'function') renderExpenses();
       }
     }
   });
 </script>
+
 </body>
 </html>
