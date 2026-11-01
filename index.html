@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nawab Kurta - Home</title>
+<style>
+:root{--ink:#171717;--muted:#666;--line:#ddd;--gold:#b58a3b}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f3f3;color:var(--ink);font:15px system-ui,-apple-system,sans-serif; padding-left: 80px;}
+.app{max-width:760px;margin:22px auto;padding:16px}
+h1{font-size:34px;margin:0;text-align:center;letter-spacing:1px}
+.sub{text-align:center;color:#555;font-size:14px;margin:8px 0 45px}
+
+button{border:0;border-radius:12px;padding:16px;font:600 16px system-ui;cursor:pointer;transition:opacity 0.2s;width:100%;box-shadow: 0 4px 12px rgba(0,0,0,0.04);}
+button:active{opacity:0.8}
+.primary{background:#171717;color:#fff;box-shadow: 0 6px 16px rgba(0,0,0,0.12);}
+.secondary{background:#fff;color:#171717;border:1px solid #ddd;}
+
+/* SIDE NAVIGATION */
+.side-nav {
+  position: fixed; top: 0; left: 0; bottom: 0; background: #fff;
+  border-right: 1px solid #e5e5e5; display: flex; flex-direction: column;
+  padding: 20px 0; z-index: 2500; width: 80px; box-shadow: 2px 0 10px rgba(0,0,0,0.04);
+}
+.side-nav a {
+  background: transparent; color: var(--muted); border: none; padding: 16px 0;
+  font-size: 11px; font-weight: 600; display: flex; flex-direction: column; text-decoration: none;
+  align-items: center; gap: 6px; cursor: pointer; width: 100%; transition: all 0.2s;
+}
+.side-nav a svg { width: 24px; height: 24px; fill: currentColor; }
+.side-nav a.active { color: var(--ink); background: #f9f9f9; border-left: 3px solid var(--ink); }
+.side-nav a:hover:not(.active) { background: #fafafa; color: #333; }
+
+@media(max-width:600px){
+  body { padding-left: 65px; } .side-nav { width: 65px; }
+  .side-nav a { font-size: 10px; padding: 12px 0; } .side-nav a svg { width: 20px; height: 20px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="side-nav">
+  <a href="index.html" class="active">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span>
+  </a>
+  <a href="bill.html">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg><span>New Bill</span>
+  </a>
+  <a href="history.html">
+    <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg><span>History</span>
+  </a>
+  <a href="expense.html">
+    <svg viewBox="0 0 24 24"><path d="M21.18 10.37l-1.45-1.45a7.95 7.95 0 0 0-1.74-7.18l-1.42 1.42a5.95 5.95 0 0 1 1.2 5.25l-2.02-2.02a7.95 7.95 0 0 0-7.18-1.74L7.12 3.19l-1.42 1.42a5.95 5.95 0 0 1 5.25 1.2l-2.02-2.02a7.95 7.95 0 0 0-1.74 7.18l-1.45 1.45L2 15l4 4 4-4-3.73-3.73a5.95 5.95 0 0 1 7.46 0L10 19l4 4 4-4-3.73-3.73a5.95 5.95 0 0 1 7.46 0L18 19l4 4 4-4-4.82-8.63zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg><span>Expenses</span>
+  </a>
+</nav>
+
+<div class="app">
+ <div style="text-align:center; padding: 10vh 20px; margin-top: 10px;">
+  <h1>NAWAB KURTA</h1>
+  <div class="sub">SMART BILLING & POS</div>
+  
+  <div style="display:flex; flex-direction:column; gap:16px; max-width: 280px; margin: 0 auto;">
+   <button class="primary" onclick="window.location.href='bill.html'">＋ Create New Bill</button>
+   <button class="secondary" onclick="window.location.href='history.html'">▤ View Bill History</button>
+   <button class="secondary" onclick="window.location.href='expense.html'">₹ Shop Expenses</button>
+  </div>
+ </div>
+</div>
+
+</body>
+</html>
