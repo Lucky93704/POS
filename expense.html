@@ -41,6 +41,7 @@ button:active{opacity:0.8}
 .app-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:3000;background:#171717;color:#fff;padding:12px 18px;border-radius:999px;transition:opacity .22s,transform .22s;font-size:13px}
 .app-toast.show{opacity:1;transform:translate(-50%,0)}
 .app-confirm{position:fixed;inset:0;background:#0008;z-index:3100;display:flex;align-items:center;justify-content:center;padding:18px;}
+.app-confirm[hidden] { display: none !important; }
 .confirm-card{width:min(340px,100%);background:#fff;border-radius:18px;padding:22px;text-align:center;}
 
 @media(max-width:600px){
