@@ -41,8 +41,9 @@ button:active{opacity:0.8}
 .app-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:3000;background:#171717;color:#fff;padding:12px 18px;border-radius:999px;transition:opacity .22s,transform .22s;font-size:13px}
 .app-toast.show{opacity:1;transform:translate(-50%,0)}
 .app-confirm{position:fixed;inset:0;background:#0008;z-index:3100;display:flex;align-items:center;justify-content:center;padding:18px;}
-.app-confirm[hidden] { display: none !important; }
 .confirm-card{width:min(340px,100%);background:#fff;border-radius:18px;padding:22px;text-align:center;}
+
+.app-confirm[hidden] { display: none !important; }
 
 @media(max-width:600px){
   body { padding-left: 65px; } .side-nav { width: 65px; }
@@ -96,6 +97,14 @@ button:active{opacity:0.8}
 const EXPENSE_KEY = 'nawabKurtaExpenses_v1';
 const money=n=>'₹'+(Number(n)||0).toFixed(2);
 
+const formatDate = (value) => {
+  if(!value)return '';
+  const parts=String(value).split('-');
+  if(parts.length===3) return new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2])).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const d=new Date(value);
+  return Number.isNaN(d.getTime())?String(value):d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+};
+
 let toastTimer, confirmResolver;
 function toast(msg){ const el=document.getElementById('appToast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2400); }
 function askConfirm(msg,title='Are you sure?',act='Continue'){ document.getElementById('confirmMessage').textContent=msg;document.getElementById('confirmTitle').textContent=title;document.getElementById('confirmOk').textContent=act;document.getElementById('appConfirm').hidden=false;return new Promise(r=>{confirmResolver=r}); }
@@ -122,7 +131,7 @@ function renderExpenses() {
   let total = 0; list.innerHTML = '';
   history.forEach(x => {
     total += x.amount; const row = document.createElement('div'); row.className = 'history-entry';
-    row.innerHTML = `<div><strong>${x.desc} · ${money(x.amount)}</strong><small>${x.date}</small></div>`;
+    row.innerHTML = `<div><strong>${x.desc} · ${money(x.amount)}</strong><small>${formatDate(x.date)}</small></div>`;
     const actions = document.createElement('div'); actions.className = 'actions';
     const del = document.createElement('button'); del.className = 'danger'; del.textContent = 'Delete';
     del.onclick = async () => { if(await askConfirm('Delete expense?')){ writeExpenses(readExpenses().filter(y=>y.id!==x.id)); renderExpenses(); toast('Deleted'); } };
