@@ -115,9 +115,11 @@ button:active{opacity:0.8}
   <div id="historyList" class="note">No bills saved yet.</div>
 
   <div class="actions" style="margin-top:20px;border-top:1px solid #eee;padding-top:16px;">
-    <button class="secondary" id="exportDataBtn">Export Backup</button>
-    <button class="secondary" id="importDataBtn">Import Backup</button><input type="file" id="importFile" accept=".json" style="display:none">
-    <button class="danger" id="clearHistory">Clear Data</button>
+    <button class="primary" id="cloudBackupBtn">☁️ Backup to Cloud</button>
+    <button class="primary" id="cloudRestoreBtn">☁️ Restore from Cloud</button>
+    <button class="secondary" id="exportDataBtn">Export Local Backup</button>
+    <button class="secondary" id="importDataBtn">Import Local Backup</button><input type="file" id="importFile" accept=".json" style="display:none">
+    <button class="danger" id="clearHistory">Clear Local Data</button>
   </div>
  </section>
 </div>
@@ -270,6 +272,59 @@ document.getElementById('importFile').onchange = (e) => {
 
 document.getElementById('clearHistory').onclick = async() => { if(await askConfirm('Delete ALL history?')){ writeHistory([]); renderHistory(); toast('History cleared'); }};
 renderHistory();
+</script>
+
+<!-- FIREBASE CLOUD BACKUP SCRIPT -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCU9P4z-hBu7sho7tT55GkLBANsd2Ghs-w",
+    authDomain: "pos-app-cf53e.firebaseapp.com",
+    projectId: "pos-app-cf53e",
+    storageBucket: "pos-app-cf53e.firebasestorage.app",
+    messagingSenderId: "956442371301",
+    appId: "1:956442371301:web:54609b4caca6cf08c3600c",
+    measurementId: "G-FL8JTQ4NEC"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Backup Bills to Cloud
+  document.getElementById('cloudBackupBtn').addEventListener('click', async () => {
+    try {
+      toast('Uploading to Cloud...');
+      const data = readHistory(); 
+      await setDoc(doc(db, "nawab_kurta", "bills_backup"), { data: data });
+      toast('Cloud Backup Successful! ☁️');
+    } catch (e) {
+      toast('Error saving to cloud. Check console.');
+      console.error("Firebase Error:", e);
+    }
+  });
+
+  // Restore Bills from Cloud
+  document.getElementById('cloudRestoreBtn').addEventListener('click', async () => {
+    if(await askConfirm('Restore from Cloud? This will overwrite your current bills on this device.', 'Cloud Restore')) {
+      try {
+        toast('Downloading from Cloud...');
+        const docSnap = await getDoc(doc(db, "nawab_kurta", "bills_backup"));
+        
+        if (docSnap.exists()) {
+          writeHistory(docSnap.data().data); 
+          renderHistory(); 
+          toast('Cloud Restore Complete! ✅');
+        } else {
+          toast('No cloud backup found.');
+        }
+      } catch (e) {
+        toast('Error downloading from cloud.');
+        console.error("Firebase Error:", e);
+      }
+    }
+  });
 </script>
 </body>
 </html>
