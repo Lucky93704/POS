@@ -2753,87 +2753,111 @@
             document.getElementById('udhaar-pay-modal').classList.add('hidden');
         };
 
-        window.submitUdhaarPayment = async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('udh-pay-id').value;
-            const paidNow = Number(document.getElementById('udh-pay-amount').value) || 0;
-            const payMode = document.getElementById('udh-pay-mode')?.value || 'Cash';
-            const payDate = document.getElementById('udh-pay-date')?.value || new Date().toISOString().split('T')[0];
-            const item = window.state.udhaar.find(u => u.id === id);
-            if (!item || paidNow <= 0) return;
+   window.submitUdhaarPayment = async (e) => {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    
+    const id = document.getElementById('udh-pay-id').value;
+    const paidNow = Number(document.getElementById('udh-pay-amount').value) || 0;
+    const payMode = document.getElementById('udh-pay-mode')?.value || 'Cash';
+    const payDate = document.getElementById('udh-pay-date')?.value || new Date().toISOString().split('T')[0];
+    const item = window.state.udhaar.find(u => u.id === id);
+    if (!item || paidNow <= 0) return;
 
-            const remaining = Math.max(0, (Number(item.amount) || 0) - paidNow);
-            const updated = {
-                ...item,
-                amount: remaining,
-                status: remaining === 0 ? 'Settled' : 'Pending',
-                notes: `${item.notes || ''} (Paid ₹${paidNow} on ${payDate} via ${payMode})`.trim(),
-                updatedAt: new Date().toISOString()
-            };
-            await window.saveDocument('udhaar', updated);
+    const remaining = Math.max(0, (Number(item.amount) || 0) - paidNow);
+    const updated = {
+        ...item,
+        amount: remaining,
+        status: remaining === 0 ? 'Settled' : 'Pending',
+        notes: `${item.notes || ''} (Paid ₹${paidNow} on ${payDate} via ${payMode})`.trim(),
+        updatedAt: new Date().toISOString()
+    };
+    await window.saveDocument('udhaar', updated);
 
-            // Find linked original sales bill (if any)
-            const origSale = window.state.sales.find(s =>
-                s.id === item.saleId ||
-                s.id === item.linkedSaleId ||
-                (s.invoiceNo && item.notes && item.notes.includes(s.invoiceNo))
-            );
+    // 1. Locate original sale if linked by ID or invoice reference
+    const origSale = window.state.sales.find(s =>
+        s.id === item.saleId ||
+        s.id === item.linkedSaleId ||
+        (s.invoiceNo && item.notes && item.notes.includes(s.invoiceNo))
+    );
 
-            // Generate new invoice on the payment date
-            const now = new Date();
-            const newInvoiceNo = 'INV-' + String(now.getTime()).slice(-5);
-            let items = origSale?.items || '[]';
-            let custName = item.partyName || origSale?.customerName || 'Customer';
-            let custPhone = item.phone || origSale?.customerPhone || '';
-
-            const isCash = payMode === 'Cash';
-            const isOnline = payMode === 'UPI' || payMode === 'Card';
-
-            const newSaleDoc = {
-                id: 'sale_' + now.getTime(),
-                docType: 'sale',
-                recordType: 'sale',
-                invoiceNo: newInvoiceNo,
-                parentInvoiceNo: origSale?.invoiceNo || '',
-                customerName: custName,
-                customerPhone: custPhone,
-                paymentMode: payMode,
-                cashAmount: isCash ? paidNow : 0,
-                onlineAmount: isOnline ? paidNow : 0,
-                advancePaid: paidNow,
-                remainingAmount: 0,
-                subtotal: paidNow,
-                discountAmount: 0,
-                discountRaw: 0,
-                discountType: 'flat',
-                grandTotal: paidNow,
-                totalCost: 0,
-                status: 'Completed',
-                items: items,
-                notes: `Remaining balance payment for ${origSale ? origSale.invoiceNo : 'Udhaar'} (Original Bill Total: ₹${origSale?.grandTotal || (paidNow + remaining)})`,
-                dateStr: payDate,
-                timestamp: now.getTime(),
-                updatedAt: now.toISOString()
-            };
-
-            await window.saveDocument('sales', newSaleDoc);
-
-            // If original sale was an Advance bill, update original sale remainingAmount to match the new remaining
-            if (origSale && origSale.paymentMode === 'Advance') {
-                await window.saveDocument('sales', {
-                    ...origSale,
-                    remainingAmount: remaining,
-                    notes: `${origSale.notes || ''} (Paid ₹${paidNow} on ${payDate} -> ${newInvoiceNo})`.trim(),
-                    updatedAt: new Date().toISOString()
-                });
+    // 2. Prepare line items so the new invoice always has clear, valid item rows
+    let lineItems = [];
+    if (origSale && origSale.items) {
+        try {
+            const parsed = typeof origSale.items === 'string' ? JSON.parse(origSale.items) : origSale.items;
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                lineItems = parsed.map(it => ({
+                    name: `${it.name} (Balance Clearance)`,
+                    qty: it.qty || 1,
+                    price: Math.round(paidNow / (parsed.length || 1))
+                }));
             }
+        } catch(err) {}
+    }
+    
+    // Fallback if manual entry or no items found
+    if (lineItems.length === 0) {
+        lineItems = [{
+            name: `Balance Payment - ${item.partyName} (${item.notes || 'Udhaar Settlement'})`,
+            qty: 1,
+            price: paidNow
+        }];
+    }
 
-            window.closeUdhaarPayModal();
-            window.showToast(`Recorded ₹${paidNow} & created new Invoice ${newInvoiceNo} on ${payDate}!`, 'success');
-            if (window.viewInvoice) {
-                window.viewInvoice(newSaleDoc.id, newSaleDoc);
-            }
-        };
+    // 3. Generate a brand-new tax invoice document
+    const now = new Date();
+    const newInvoiceNo = 'INV-' + String(now.getTime()).slice(-5);
+    const isCash = payMode === 'Cash';
+    const isOnline = payMode === 'UPI' || payMode === 'Card';
+
+    const newSaleDoc = {
+        id: 'sale_' + now.getTime(),
+        docType: 'sale',
+        recordType: 'sale',
+        invoiceNo: newInvoiceNo,
+        parentInvoiceNo: origSale ? origSale.invoiceNo : '',
+        customerName: item.partyName || origSale?.customerName || 'Customer',
+        customerPhone: item.phone || origSale?.customerPhone || '',
+        paymentMode: payMode,
+        cashAmount: isCash ? paidNow : 0,
+        onlineAmount: isOnline ? paidNow : 0,
+        advancePaid: paidNow,
+        remainingAmount: 0,
+        subtotal: paidNow,
+        discountAmount: 0,
+        discountRaw: 0,
+        discountType: 'flat',
+        grandTotal: paidNow,
+        totalCost: 0,
+        status: 'Completed',
+        items: JSON.stringify(lineItems),
+        notes: `Balance settlement for ${origSale ? origSale.invoiceNo : 'Udhaar ledger'}`,
+        dateStr: payDate,
+        timestamp: now.getTime(),
+        updatedAt: now.toISOString()
+    };
+
+    // Save newly created invoice to state, local storage, and Firestore
+    await window.saveDocument('sales', newSaleDoc);
+
+    // If original bill was an Advance bill, update its remaining amount to 0 (or new balance)
+    if (origSale && origSale.paymentMode === 'Advance') {
+        await window.saveDocument('sales', {
+            ...origSale,
+            remainingAmount: remaining,
+            notes: `${origSale.notes || ''} (Paid ₹${paidNow} on ${payDate} -> ${newInvoiceNo})`.trim(),
+            updatedAt: new Date().toISOString()
+        });
+    }
+
+    // Close modal, notify user, and display the new receipt
+    window.closeUdhaarPayModal();
+    window.showToast(`Invoice ${newInvoiceNo} generated for ₹${paidNow}!`, 'success');
+    
+    if (typeof window.viewInvoice === 'function') {
+        window.viewInvoice(newSaleDoc.id, newSaleDoc);
+    }
+};
 
         window.settleUdhaar = async (id) => {
             const item = window.state.udhaar.find(u => u.id === id);
