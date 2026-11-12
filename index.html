@@ -208,25 +208,54 @@
 
                 <!-- 1. DASHBOARD VIEW -->
                 <section id="view-dashboard" class="tab-view space-y-6">
-                    <!-- Quick Actions Bar -->
-                    <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap items-center justify-between gap-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 px-2">Quick Actions</span>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <button type="button" onclick="window.location.href='pos.html'" class="px-3.5 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                                <i data-lucide="receipt" class="w-3.5 h-3.5"></i> New POS Bill
-                            </button>
-                            <button type="button" onclick="window.openProductModal()" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add New Product
-                            </button>
-                            <button type="button" onclick="window.openExpenseModal()" class="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                                <i data-lucide="wallet" class="w-3.5 h-3.5"></i> Record Expense
-                            </button>
-                            <button type="button" onclick="window.openUdhaarModal()" class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                                <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Add Udhaar Entry
-                            </button>
-                            <button type="button" onclick="window.pingCloudSync()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                                <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-600"></i> Test Cloud Ping
-                            </button>
+                    <!-- Quick Actions & Common Dashboard Date Filter Bar -->
+                    <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex flex-wrap items-center gap-2.5">
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 px-2 flex items-center gap-1.5">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-brand-600"></i> Date Filter:
+                                </span>
+                                <select id="dashDateFilter" onchange="window.handleDashDateFilterChange()" class="px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <option value="TODAY" selected>Today</option>
+                                    <option value="ALL">All Dates</option>
+                                    <option value="YESTERDAY">Yesterday</option>
+                                    <option value="LAST_7">Last 7 Days</option>
+                                    <option value="THIS_MONTH">This Month</option>
+                                    <option value="LAST_MONTH">Last Month</option>
+                                    <option value="CUSTOM">Custom Date Range</option>
+                                </select>
+                                <span id="dash-period-badge" class="text-[11px] font-semibold bg-brand-50 text-brand-700 px-2.5 py-1 rounded-full border border-brand-200/60">Showing: Today</span>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button type="button" onclick="window.location.href='pos.html'" class="px-3.5 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                                    <i data-lucide="receipt" class="w-3.5 h-3.5"></i> New POS Bill
+                                </button>
+                                <button type="button" onclick="window.openProductModal()" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add New Product
+                                </button>
+                                <button type="button" onclick="window.openExpenseModal()" class="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                                    <i data-lucide="wallet" class="w-3.5 h-3.5"></i> Record Expense
+                                </button>
+                                <button type="button" onclick="window.openUdhaarModal()" class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Add Udhaar Entry
+                                </button>
+                                <button type="button" onclick="window.pingCloudSync()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                                    <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-600"></i> Test Cloud Ping
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Custom Date Range Inputs for Dashboard -->
+                        <div id="dashCustomDateRow" class="hidden pt-2.5 border-t border-slate-100 flex flex-wrap items-center gap-3 text-xs">
+                            <span class="font-semibold text-slate-600">Custom Range:</span>
+                            <div class="flex items-center gap-1.5">
+                                <label class="text-slate-500">From:</label>
+                                <input type="date" id="dashDateFrom" onchange="window.refreshAllViews()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-medium">
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <label class="text-slate-500">To:</label>
+                                <input type="date" id="dashDateTo" onchange="window.refreshAllViews()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-medium">
+                            </div>
                         </div>
                     </div>
 
@@ -1139,8 +1168,27 @@
             return true;
         };
 
+        window.handleDashDateFilterChange = () => {
+            const val = document.getElementById('dashDateFilter')?.value || 'TODAY';
+            const row = document.getElementById('dashCustomDateRow');
+            if (row) row.classList.toggle('hidden', val !== 'CUSTOM');
+            const labelMap = {
+                TODAY: 'Showing: Today',
+                ALL: 'Showing: All Dates',
+                YESTERDAY: 'Showing: Yesterday',
+                LAST_7: 'Showing: Last 7 Days',
+                THIS_MONTH: 'Showing: This Month',
+                LAST_MONTH: 'Showing: Last Month',
+                CUSTOM: 'Showing: Custom Range'
+            };
+            const badge = document.getElementById('dash-period-badge');
+            if (badge) badge.textContent = labelMap[val] || 'Showing: Today';
+            renderDashboard();
+            window.safeIcons();
+        };
+
         window.handleSalesDateFilterChange = () => {
-            const val = document.getElementById('salesDateFilter')?.value || 'ALL';
+            const val = document.getElementById('salesDateFilter')?.value || 'TODAY';
             const row = document.getElementById('salesCustomDateRow');
             if (row) row.classList.toggle('hidden', val !== 'CUSTOM');
             window.renderSalesTable();
@@ -1238,9 +1286,17 @@
             return '₹' + num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
         };
 
-        window.formatPaymentLabel = (mode, cashAmt, onlineAmt) => {
+        window.formatPaymentLabel = (mode, cashAmt, onlineAmt, remAmt) => {
             if (mode === 'Split') {
                 return `Split (Cash: ${window.formatINR(cashAmt || 0)} + Online: ${window.formatINR(onlineAmt || 0)})`;
+            }
+            if (mode === 'Advance') {
+                const advTotal = (Number(cashAmt) || 0) + (Number(onlineAmt) || 0);
+                const parts = [];
+                if (Number(cashAmt) > 0) parts.push(`Cash: ${window.formatINR(cashAmt)}`);
+                if (Number(onlineAmt) > 0) parts.push(`Online: ${window.formatINR(onlineAmt)}`);
+                const partStr = parts.length > 0 ? ` [${parts.join(' + ')}]` : '';
+                return `Advance: ${window.formatINR(advTotal)}${partStr} • Due: ${window.formatINR(remAmt || 0)}`;
             }
             return mode || 'Cash';
         };
@@ -1442,25 +1498,43 @@
             window.safeIcons();
         };
 
-        // 1. Dashboard Rendering
+        // 1. Dashboard Rendering (with Common Date Filter — Default: TODAY)
         function renderDashboard() {
             if (!document.getElementById('kpi-revenue')) return;
             const { products, sales, expenses, udhaar } = window.state;
-            const activeSales = sales.filter(s => s.status !== 'Refunded');
+            const allActiveSales = sales.filter(s => s.status !== 'Refunded');
 
             const banner = document.getElementById('empty-shop-banner');
             if (banner) {
-                if (products.length === 0 && activeSales.length === 0 && expenses.length === 0 && udhaar.length === 0) {
+                if (products.length === 0 && allActiveSales.length === 0 && expenses.length === 0 && udhaar.length === 0) {
                     banner.classList.remove('hidden');
                 } else {
                     banner.classList.add('hidden');
                 }
             }
 
+            const dashFilter = document.getElementById('dashDateFilter')?.value || 'TODAY';
+            const dashFrom = document.getElementById('dashDateFrom')?.value || '';
+            const dashTo = document.getElementById('dashDateTo')?.value || '';
+
+            const activeSales = allActiveSales.filter(s =>
+                window.matchesDateRange(s.dateStr, s.timestamp, dashFilter, dashFrom, dashTo)
+            );
+            const filteredExpenses = expenses.filter(e =>
+                window.matchesDateRange(e.dateStr, e.timestamp, dashFilter, dashFrom, dashTo)
+            );
+
             const totalRevenue = activeSales.reduce((sum, s) => sum + (Number(s.grandTotal) || 0), 0);
-            const realizedSales = activeSales.filter(s => s.paymentMode !== 'Udhaar').reduce((sum, s) => sum + (Number(s.grandTotal) || 0), 0);
+            const realizedSales = activeSales.reduce((sum, s) => {
+                if (s.paymentMode === 'Udhaar') return sum;
+                if (s.paymentMode === 'Advance') {
+                    const adv = s.advancePaid !== undefined ? Number(s.advancePaid) : ((Number(s.cashAmount) || 0) + (Number(s.onlineAmount) || 0));
+                    return sum + adv;
+                }
+                return sum + (Number(s.grandTotal) || 0);
+            }, 0);
             const totalCOGS = activeSales.reduce((sum, s) => sum + (Number(s.totalCost) || 0), 0);
-            const totalExpenses = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+            const totalExpenses = filteredExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
             const netProfit = (totalRevenue - totalCOGS) - totalExpenses;
 
             const stockValue = products.reduce((sum, p) => sum + ((Number(p.costPrice) || 0) * (Number(p.stock) || 0)), 0);
@@ -1476,7 +1550,7 @@
             if (realizedEl) realizedEl.textContent = `Realized Cash/UPI: ${formatINR(realizedSales)}`;
             document.getElementById('kpi-sales-count').textContent = `${activeSales.length} active invoices`;
             document.getElementById('kpi-expenses').textContent = formatINR(totalExpenses);
-            document.getElementById('kpi-expense-count').textContent = `${expenses.length} expense entries`;
+            document.getElementById('kpi-expense-count').textContent = `${filteredExpenses.length} expense entries`;
 
             const profitEl = document.getElementById('kpi-profit');
             profitEl.textContent = formatINR(netProfit);
@@ -1507,11 +1581,11 @@
                 ...activeSales.map(s => ({
                     type: 'SALE',
                     title: `Sale to ${s.customerName || 'Walk-in'}`,
-                    sub: `${s.invoiceNo} • ${window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount)}`,
+                    sub: `${s.invoiceNo} • ${window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount, s.remainingAmount)}`,
                     amount: s.grandTotal,
                     timestamp: s.timestamp || 0
                 })),
-                ...expenses.map(e => ({
+                ...filteredExpenses.map(e => ({
                     type: 'EXPENSE',
                     title: e.title,
                     sub: `${e.category} • ${window.formatPaymentLabel(e.method, e.cashAmount, e.onlineAmount)}`,
@@ -1704,11 +1778,17 @@
             const cPhone = document.getElementById('pos-customer-phone');
             const sCash = document.getElementById('pos-split-cash');
             const sOnl = document.getElementById('pos-split-online');
+            const aCash = document.getElementById('pos-adv-cash');
+            const aOnl = document.getElementById('pos-adv-online');
+            const aRem = document.getElementById('pos-adv-remaining');
             if (dVal) dVal.value = '';
             if (cName) cName.value = '';
             if (cPhone) cPhone.value = '';
             if (sCash) sCash.value = '';
             if (sOnl) sOnl.value = '';
+            if (aCash) aCash.value = '';
+            if (aOnl) aOnl.value = '';
+            if (aRem) aRem.value = '0';
             window.setPOSPaymentMode('Cash');
             window.renderCart();
         };
@@ -1743,6 +1823,42 @@
                     splitBox.classList.add('hidden');
                 }
             }
+            const advBox = document.getElementById('pos-advance-box');
+            if (advBox) {
+                if (mode === 'Advance') {
+                    advBox.classList.remove('hidden');
+                    window.handlePosAdvanceInput();
+                    window.safeIcons();
+                } else {
+                    advBox.classList.add('hidden');
+                }
+            }
+        };
+
+        window.handlePosAdvanceInput = () => {
+            const subtotal = window.state.cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const discVal = Math.max(0, Number(document.getElementById('posDiscount')?.value) || 0);
+            const discType = document.getElementById('pos-discount-type')?.value || 'FLAT';
+            let discountAmount = discType === 'PERCENT' ? Math.round((subtotal * Math.min(100, discVal)) / 100) : discVal;
+            const grandTotal = Math.max(0, subtotal - Math.min(subtotal, discountAmount));
+
+            const cInp = document.getElementById('pos-adv-cash');
+            const oInp = document.getElementById('pos-adv-online');
+            const rInp = document.getElementById('pos-adv-remaining');
+            if (!cInp || !oInp || !rInp) return;
+
+            let c = Math.max(0, Number(cInp.value) || 0);
+            let o = Math.max(0, Number(oInp.value) || 0);
+            if (c + o > grandTotal) {
+                if (document.activeElement === cInp) {
+                    c = Math.max(0, grandTotal - o);
+                    cInp.value = c;
+                } else {
+                    o = Math.max(0, grandTotal - c);
+                    oInp.value = o;
+                }
+            }
+            rInp.value = Math.max(0, grandTotal - (c + o));
         };
 
         window.handlePosSplitInput = (changedField) => {
@@ -1838,6 +1954,15 @@
                     cashInp.value = c;
                     onlInp.value = Math.max(0, grandTotal - c);
                 }
+            } else if (window.state.posPaymentMode === 'Advance') {
+                const cInp = document.getElementById('pos-adv-cash');
+                const oInp = document.getElementById('pos-adv-online');
+                const rInp = document.getElementById('pos-adv-remaining');
+                if (cInp && oInp && rInp) {
+                    const c = Math.max(0, Number(cInp.value) || 0);
+                    const o = Math.max(0, Number(oInp.value) || 0);
+                    rInp.value = Math.max(0, grandTotal - (c + o));
+                }
             }
             return { subtotal, discountAmount, grandTotal, discVal, discType };
         };
@@ -1854,20 +1979,37 @@
             const customerPhone = document.getElementById('pos-customer-phone').value.trim() || '';
             const paymentMode = window.state.posPaymentMode;
 
-            if (paymentMode === 'Udhaar' && customerName === 'Walk-in Customer') {
-                window.showToast('Please enter Customer Name for Udhaar (Credit) sale!', 'warning');
+            if ((paymentMode === 'Udhaar' || paymentMode === 'Advance') && customerName === 'Walk-in Customer') {
+                window.showToast('Please enter Customer Name for Advance / Udhaar sale!', 'warning');
                 document.getElementById('pos-customer-name').focus();
                 return;
             }
 
             let cashAmount = paymentMode === 'Cash' ? grandTotal : 0;
             let onlineAmount = (paymentMode === 'UPI' || paymentMode === 'Card') ? grandTotal : 0;
+            let advancePaid = (paymentMode === 'Udhaar') ? 0 : grandTotal;
+            let remainingAmount = (paymentMode === 'Udhaar') ? grandTotal : 0;
 
             if (paymentMode === 'Split') {
                 cashAmount = Math.max(0, Number(document.getElementById('pos-split-cash')?.value) || 0);
                 onlineAmount = Math.max(0, Number(document.getElementById('pos-split-online')?.value) || 0);
                 if (Math.round(cashAmount + onlineAmount) !== Math.round(grandTotal)) {
                     window.showToast(`Split amounts (₹${cashAmount} + ₹${onlineAmount}) must equal Grand Total (₹${grandTotal})!`, 'error');
+                    return;
+                }
+                advancePaid = grandTotal;
+                remainingAmount = 0;
+            } else if (paymentMode === 'Advance') {
+                cashAmount = Math.max(0, Number(document.getElementById('pos-adv-cash')?.value) || 0);
+                onlineAmount = Math.max(0, Number(document.getElementById('pos-adv-online')?.value) || 0);
+                advancePaid = cashAmount + onlineAmount;
+                remainingAmount = Math.max(0, grandTotal - advancePaid);
+                if (advancePaid <= 0) {
+                    window.showToast('Please enter Advance Paid amount (or choose Full Udhaar)!', 'warning');
+                    return;
+                }
+                if (remainingAmount <= 0) {
+                    window.showToast('Remaining balance is ₹0 — use Cash, Online, or Split for full payment!', 'warning');
                     return;
                 }
             }
@@ -1884,6 +2026,8 @@
                 paymentMode,
                 cashAmount,
                 onlineAmount,
+                advancePaid,
+                remainingAmount,
                 subtotal,
                 discountAmount,
                 discountRaw: discVal || 0,
@@ -1897,7 +2041,7 @@
                 updatedAt: now.toISOString()
             };
 
-            const udhDoc = paymentMode === 'Udhaar' ? {
+            const udhDoc = (paymentMode === 'Udhaar' || (paymentMode === 'Advance' && remainingAmount > 0)) ? {
                 id: 'udh_' + now.getTime(),
                 docType: 'udhaar',
                 recordType: 'udhaar',
@@ -1906,8 +2050,10 @@
                 partyName: customerName,
                 phone: customerPhone,
                 type: 'Customer Receivable',
-                amount: grandTotal,
-                notes: `Credit Bill ${invoiceNo}`,
+                amount: paymentMode === 'Advance' ? remainingAmount : grandTotal,
+                notes: paymentMode === 'Advance'
+                    ? `Bill ${invoiceNo} (Total: ₹${grandTotal}, Advance Paid: ₹${advancePaid})`
+                    : `Credit Bill ${invoiceNo}`,
                 status: 'Pending',
                 dateStr: saleDoc.dateStr,
                 timestamp: now.getTime(),
@@ -2082,7 +2228,7 @@
         window.getFilteredSales = () => {
             const search = (document.getElementById('sales-search')?.value || '').toLowerCase();
             const mode = document.getElementById('sales-mode-filter')?.value || 'ALL';
-            const dateFilter = document.getElementById('salesDateFilter')?.value || 'ALL';
+            const dateFilter = document.getElementById('salesDateFilter')?.value || 'TODAY';
             const customFrom = document.getElementById('salesDateFrom')?.value || '';
             const customTo = document.getElementById('salesDateTo')?.value || '';
 
@@ -2101,13 +2247,49 @@
             if (!tbody) return;
 
             const filtered = window.getFilteredSales();
-            const activeFilteredRev = filtered
-                .filter(s => s.status !== 'Refunded')
-                .reduce((sum, s) => sum + (Number(s.grandTotal) || 0), 0);
+            const activeFiltered = filtered.filter(s => s.status !== 'Refunded');
+
+            let filteredCash = 0;
+            let filteredOnline = 0;
+            let filteredUdhaar = 0;
+            let activeFilteredRev = 0;
+
+            activeFiltered.forEach(s => {
+                const gt = Number(s.grandTotal) || 0;
+                activeFilteredRev += gt;
+
+                if (s.paymentMode === 'Split') {
+                    filteredCash += Number(s.cashAmount) || 0;
+                    filteredOnline += Number(s.onlineAmount) || 0;
+                } else if (s.paymentMode === 'Advance') {
+                    const c = Number(s.cashAmount) || 0;
+                    const o = Number(s.onlineAmount) || 0;
+                    const rem = s.remainingAmount !== undefined ? Number(s.remainingAmount) : Math.max(0, gt - (c + o));
+                    filteredCash += c;
+                    filteredOnline += o;
+                    filteredUdhaar += rem;
+                } else if (s.paymentMode === 'Cash') {
+                    filteredCash += (s.cashAmount !== undefined ? Number(s.cashAmount) : gt);
+                } else if (s.paymentMode === 'UPI' || s.paymentMode === 'Card' || s.paymentMode === 'Online') {
+                    filteredOnline += (s.onlineAmount !== undefined ? Number(s.onlineAmount) : gt);
+                } else if (s.paymentMode === 'Udhaar') {
+                    filteredUdhaar += gt;
+                }
+            });
 
             const summaryEl = document.getElementById('sales-filter-summary');
+            const cashEl = document.getElementById('sales-filter-cash');
+            const onlineEl = document.getElementById('sales-filter-online');
+            const udhaarEl = document.getElementById('sales-filter-udhaar');
             const totalEl = document.getElementById('sales-filter-total');
+
             if (summaryEl) summaryEl.textContent = `Showing ${filtered.length} of ${window.state.sales.length} invoices`;
+            if (cashEl) cashEl.textContent = `Cash: ${formatINR(filteredCash)}`;
+            if (onlineEl) onlineEl.textContent = `Online: ${formatINR(filteredOnline)}`;
+            if (udhaarEl) {
+                udhaarEl.textContent = `Due / Udhaar: ${formatINR(filteredUdhaar)}`;
+                udhaarEl.classList.toggle('hidden', filteredUdhaar <= 0);
+            }
             if (totalEl) totalEl.textContent = `Filtered Revenue: ${formatINR(activeFilteredRev)}`;
 
             if (filtered.length === 0) {
@@ -2120,8 +2302,19 @@
                 try { items = typeof s.items === 'string' ? JSON.parse(s.items) : (s.items || []); } catch(e) {}
                 const summary = items.map(i => `${i.name} (x${i.qty})`).join(', ');
                 const isRefunded = s.status === 'Refunded';
-                const modeBadge = isRefunded ? 'bg-rose-100 text-rose-700' : s.paymentMode === 'Udhaar' ? 'bg-amber-100 text-amber-800' : s.paymentMode === 'Split' ? 'bg-indigo-100 text-indigo-800' : 'bg-emerald-50 text-emerald-700';
-                const splitSub = (!isRefunded && s.paymentMode === 'Split') ? `<div class="text-[10px] text-slate-500 mt-0.5 font-medium">Cash: ${formatINR(s.cashAmount || 0)} • Online: ${formatINR(s.onlineAmount || 0)}</div>` : '';
+                const modeBadge = isRefunded ? 'bg-rose-100 text-rose-700' : s.paymentMode === 'Udhaar' ? 'bg-amber-100 text-amber-800' : s.paymentMode === 'Advance' ? 'bg-amber-100 text-amber-900 border border-amber-300' : s.paymentMode === 'Split' ? 'bg-indigo-100 text-indigo-800' : 'bg-emerald-50 text-emerald-700';
+                let splitSub = '';
+                if (!isRefunded && s.paymentMode === 'Split') {
+                    splitSub = `<div class="text-[10px] text-slate-500 mt-0.5 font-medium">Cash: ${formatINR(s.cashAmount || 0)} • Online: ${formatINR(s.onlineAmount || 0)}</div>`;
+                } else if (!isRefunded && s.paymentMode === 'Advance') {
+                    const advPaid = s.advancePaid !== undefined ? Number(s.advancePaid) : ((Number(s.cashAmount) || 0) + (Number(s.onlineAmount) || 0));
+                    const remDue = s.remainingAmount !== undefined ? Number(s.remainingAmount) : Math.max(0, (Number(s.grandTotal) || 0) - advPaid);
+                    const modeParts = [];
+                    if (Number(s.cashAmount) > 0) modeParts.push(`Cash: ${formatINR(s.cashAmount)}`);
+                    if (Number(s.onlineAmount) > 0) modeParts.push(`Online: ${formatINR(s.onlineAmount)}`);
+                    const breakdownTxt = modeParts.length > 0 ? ` (${modeParts.join(' + ')})` : '';
+                    splitSub = `<div class="text-[10px] text-emerald-700 mt-0.5 font-semibold">Advance: ${formatINR(advPaid)}${breakdownTxt}</div><div class="text-[10px] text-rose-600 font-bold">Remaining Due: ${formatINR(remDue)}</div>`;
+                }
 
                 return `
                     <tr class="hover:bg-slate-50/80 transition ${isRefunded ? 'opacity-60 bg-slate-50' : ''}">
@@ -2166,24 +2359,36 @@
         // Edit Invoice Modal Logic
         window.toggleEditSaleSplitBox = () => {
             const mode = document.getElementById('editSalePayMethod')?.value || 'Cash';
-            const box = document.getElementById('editSaleSplitBox');
-            if (!box) return;
-            if (mode === 'Split') {
-                box.classList.remove('hidden');
-                const { grandTotal } = window.recalcEditSaleTotals();
-                const cInp = document.getElementById('editSaleSplitCash');
-                const oInp = document.getElementById('editSaleSplitOnline');
-                if (cInp && oInp) {
-                    const curC = Number(cInp.value) || 0;
-                    const curO = Number(oInp.value) || 0;
-                    if (curC + curO !== grandTotal) {
-                        const half = Math.floor(grandTotal / 2);
-                        cInp.value = half;
-                        oInp.value = Math.max(0, grandTotal - half);
+            const splitBox = document.getElementById('editSaleSplitBox');
+            const advBox = document.getElementById('editSaleAdvanceBox');
+            const { grandTotal } = window.recalcEditSaleTotals();
+
+            if (splitBox) {
+                if (mode === 'Split') {
+                    splitBox.classList.remove('hidden');
+                    const cInp = document.getElementById('editSaleSplitCash');
+                    const oInp = document.getElementById('editSaleSplitOnline');
+                    if (cInp && oInp) {
+                        const curC = Number(cInp.value) || 0;
+                        const curO = Number(oInp.value) || 0;
+                        if (curC + curO !== grandTotal) {
+                            const half = Math.floor(grandTotal / 2);
+                            cInp.value = half;
+                            oInp.value = Math.max(0, grandTotal - half);
+                        }
                     }
+                } else {
+                    splitBox.classList.add('hidden');
                 }
-            } else {
-                box.classList.add('hidden');
+            }
+
+            if (advBox) {
+                if (mode === 'Advance') {
+                    advBox.classList.remove('hidden');
+                    window.handleEditSaleAdvanceInput();
+                } else {
+                    advBox.classList.add('hidden');
+                }
             }
         };
 
@@ -2203,6 +2408,26 @@
             }
         };
 
+        window.handleEditSaleAdvanceInput = () => {
+            const { grandTotal } = window.recalcEditSaleTotals();
+            const cInp = document.getElementById('editSaleAdvCash');
+            const oInp = document.getElementById('editSaleAdvOnline');
+            const rInp = document.getElementById('editSaleAdvRemaining');
+            if (!cInp || !oInp || !rInp) return;
+            let c = Math.max(0, Number(cInp.value) || 0);
+            let o = Math.max(0, Number(oInp.value) || 0);
+            if (c + o > grandTotal) {
+                if (document.activeElement === cInp) {
+                    c = Math.max(0, grandTotal - o);
+                    cInp.value = c;
+                } else {
+                    o = Math.max(0, grandTotal - c);
+                    oInp.value = o;
+                }
+            }
+            rInp.value = Math.max(0, grandTotal - (c + o));
+        };
+
         window.openEditSaleModal = (saleId) => {
             const sale = window.state.sales.find(s => s.id === saleId);
             if (!sale) return;
@@ -2218,6 +2443,13 @@
             const oInp = document.getElementById('editSaleSplitOnline');
             if (cInp) cInp.value = sale.cashAmount !== undefined ? sale.cashAmount : '';
             if (oInp) oInp.value = sale.onlineAmount !== undefined ? sale.onlineAmount : '';
+
+            const acInp = document.getElementById('editSaleAdvCash');
+            const aoInp = document.getElementById('editSaleAdvOnline');
+            const arInp = document.getElementById('editSaleAdvRemaining');
+            if (acInp) acInp.value = sale.cashAmount !== undefined ? sale.cashAmount : 0;
+            if (aoInp) aoInp.value = sale.onlineAmount !== undefined ? sale.onlineAmount : 0;
+            if (arInp) arInp.value = sale.remainingAmount !== undefined ? sale.remainingAmount : 0;
 
             const discType = sale.discountType === 'percent' ? 'percent' : 'flat';
             document.getElementById('editSaleDiscountType').value = discType;
@@ -2326,6 +2558,17 @@
             if (discEl) discEl.textContent = `- ${formatINR(discountAmount)}`;
             if (totEl) totEl.textContent = formatINR(grandTotal);
 
+            if (document.getElementById('editSalePayMethod')?.value === 'Advance') {
+                const acInp = document.getElementById('editSaleAdvCash');
+                const aoInp = document.getElementById('editSaleAdvOnline');
+                const arInp = document.getElementById('editSaleAdvRemaining');
+                if (acInp && aoInp && arInp) {
+                    const c = Math.max(0, Number(acInp.value) || 0);
+                    const o = Math.max(0, Number(aoInp.value) || 0);
+                    arInp.value = Math.max(0, grandTotal - (c + o));
+                }
+            }
+
             return { subtotal, discountAmount, grandTotal, discVal, discType };
         };
 
@@ -2346,8 +2589,8 @@
             const dateStr = document.getElementById('editSaleDate').value || sale.dateStr;
             const paymentMode = document.getElementById('editSalePayMethod').value || 'Cash';
 
-            if (paymentMode === 'Udhaar' && customerName === 'Walk-in Customer') {
-                window.showToast('Please enter Customer Name for Udhaar (Credit) invoice!', 'warning');
+            if ((paymentMode === 'Udhaar' || paymentMode === 'Advance') && customerName === 'Walk-in Customer') {
+                window.showToast('Please enter Customer Name for Advance / Udhaar invoice!', 'warning');
                 document.getElementById('editSaleCustomer').focus();
                 return;
             }
@@ -2357,11 +2600,29 @@
 
             let cashAmount = paymentMode === 'Cash' ? grandTotal : 0;
             let onlineAmount = (paymentMode === 'UPI' || paymentMode === 'Card') ? grandTotal : 0;
+            let advancePaid = paymentMode === 'Udhaar' ? 0 : grandTotal;
+            let remainingAmount = paymentMode === 'Udhaar' ? grandTotal : 0;
+
             if (paymentMode === 'Split') {
                 cashAmount = Math.max(0, Number(document.getElementById('editSaleSplitCash')?.value) || 0);
                 onlineAmount = Math.max(0, Number(document.getElementById('editSaleSplitOnline')?.value) || 0);
                 if (Math.round(cashAmount + onlineAmount) !== Math.round(grandTotal)) {
                     window.showToast(`Split amounts (₹${cashAmount} + ₹${onlineAmount}) must equal Grand Total (₹${grandTotal})!`, 'error');
+                    return;
+                }
+                advancePaid = grandTotal;
+                remainingAmount = 0;
+            } else if (paymentMode === 'Advance') {
+                cashAmount = Math.max(0, Number(document.getElementById('editSaleAdvCash')?.value) || 0);
+                onlineAmount = Math.max(0, Number(document.getElementById('editSaleAdvOnline')?.value) || 0);
+                advancePaid = cashAmount + onlineAmount;
+                remainingAmount = Math.max(0, grandTotal - advancePaid);
+                if (advancePaid <= 0) {
+                    window.showToast('Please enter Advance Paid amount (or choose Udhaar)!', 'warning');
+                    return;
+                }
+                if (remainingAmount <= 0) {
+                    window.showToast('Remaining due is ₹0 — choose Cash, UPI, or Split for full payment!', 'warning');
                     return;
                 }
             }
@@ -2374,6 +2635,8 @@
                 paymentMode,
                 cashAmount,
                 onlineAmount,
+                advancePaid,
+                remainingAmount,
                 subtotal,
                 discountAmount,
                 discountRaw: discVal || 0,
@@ -2393,13 +2656,19 @@
                 (u.notes && sale.invoiceNo && u.notes.includes(sale.invoiceNo))
             );
 
-            if (paymentMode === 'Udhaar' && updatedSale.status !== 'Refunded') {
+            if ((paymentMode === 'Udhaar' || (paymentMode === 'Advance' && remainingAmount > 0)) && updatedSale.status !== 'Refunded') {
+                const dueAmt = paymentMode === 'Advance' ? remainingAmount : grandTotal;
+                const dueNotes = paymentMode === 'Advance'
+                    ? `Bill ${sale.invoiceNo} (Total: ₹${grandTotal}, Advance Paid: ₹${advancePaid})`
+                    : `Credit Bill ${sale.invoiceNo}`;
                 if (linkedUdhaar) {
                     await window.saveDocument('udhaar', {
                         ...linkedUdhaar,
                         partyName: customerName,
                         phone: customerPhone,
-                        amount: grandTotal,
+                        amount: dueAmt,
+                        notes: dueNotes,
+                        status: 'Pending',
                         dateStr,
                         updatedAt: new Date().toISOString()
                     });
@@ -2413,8 +2682,8 @@
                         partyName: customerName,
                         phone: customerPhone,
                         type: 'Customer Receivable',
-                        amount: grandTotal,
-                        notes: `Credit Bill ${sale.invoiceNo}`,
+                        amount: dueAmt,
+                        notes: dueNotes,
                         status: 'Pending',
                         dateStr,
                         timestamp: Date.now(),
@@ -2423,7 +2692,7 @@
                     await window.saveDocument('udhaar', newUdh);
                 }
             } else if (linkedUdhaar) {
-                // Payment mode changed away from Udhaar (e.g. to Cash/UPI), remove linked pending Udhaar entry
+                // Payment mode changed away from Udhaar/Advance (e.g. to full Cash/UPI), remove linked pending Udhaar entry
                 await window.removeDocument('udhaar', linkedUdhaar.id);
             }
 
@@ -2500,7 +2769,9 @@
             document.getElementById('rcpt-customer').textContent = s.customerName;
             document.getElementById('rcpt-phone').textContent = s.customerPhone || '';
             document.getElementById('rcpt-date').textContent = s.dateStr;
-            document.getElementById('rcpt-mode').textContent = `Paid via ${window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount)}`;
+            const advPaidVal = s.advancePaid !== undefined ? Number(s.advancePaid) : ((Number(s.cashAmount) || 0) + (Number(s.onlineAmount) || 0));
+            const remDueVal = s.remainingAmount !== undefined ? Number(s.remainingAmount) : (s.paymentMode === 'Advance' ? Math.max(0, (Number(s.grandTotal) || 0) - advPaidVal) : 0);
+            document.getElementById('rcpt-mode').textContent = `Paid via ${window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount, remDueVal)}`;
 
             document.getElementById('rcpt-items-body').innerHTML = items.map(it => `
                 <tr>
@@ -2514,6 +2785,21 @@
             document.getElementById('rcpt-subtotal').textContent = formatINR(s.subtotal);
             document.getElementById('rcpt-discount').textContent = `- ${formatINR(s.discountAmount || 0)}`;
             document.getElementById('rcpt-total').textContent = formatINR(s.grandTotal);
+
+            const advRows = document.getElementById('rcpt-advance-rows');
+            if (advRows) {
+                if (s.paymentMode === 'Advance' || remDueVal > 0) {
+                    advRows.classList.remove('hidden');
+                    const pParts = [];
+                    if (Number(s.cashAmount) > 0) pParts.push(`Cash: ${formatINR(s.cashAmount)}`);
+                    if (Number(s.onlineAmount) > 0) pParts.push(`Online: ${formatINR(s.onlineAmount)}`);
+                    const pSub = pParts.length > 0 ? ` (${pParts.join(' + ')})` : '';
+                    document.getElementById('rcpt-advance-paid').textContent = `${formatINR(advPaidVal)}${pSub}`;
+                    document.getElementById('rcpt-balance-due').textContent = formatINR(remDueVal);
+                } else {
+                    advRows.classList.add('hidden');
+                }
+            }
 
             document.getElementById('receipt-modal').classList.remove('hidden');
             window.safeIcons();
@@ -2530,7 +2816,12 @@
             let items = [];
             try { items = typeof s.items === 'string' ? JSON.parse(s.items) : (s.items || []); } catch(e) {}
             const lines = items.map(i => `• ${i.name} (x${i.qty}) - ₹${i.price * i.qty}`).join('%0A');
-            const text = `*${window.state.shopName}*%0AInvoice: ${s.invoiceNo}%0ADate: ${s.dateStr}%0ACustomer: ${s.customerName}%0A----------------%0A${lines}%0A----------------%0A*Grand Total: ₹${s.grandTotal}* (${window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount)})%0AThank you for shopping with us!`;
+            const advPaidW = s.advancePaid !== undefined ? Number(s.advancePaid) : ((Number(s.cashAmount) || 0) + (Number(s.onlineAmount) || 0));
+            const remDueW = s.remainingAmount !== undefined ? Number(s.remainingAmount) : (s.paymentMode === 'Advance' ? Math.max(0, (Number(s.grandTotal) || 0) - advPaidW) : 0);
+            const advLine = (s.paymentMode === 'Advance' || remDueW > 0)
+                ? `%0A*Advance Paid: ₹${advPaidW}*%0A*Remaining Balance Due: ₹${remDueW}*`
+                : '';
+            const text = `*${window.state.shopName}*%0AInvoice: ${s.invoiceNo}%0ADate: ${s.dateStr}%0ACustomer: ${s.customerName}%0A----------------%0A${lines}%0A----------------%0A*Grand Total: ₹${s.grandTotal}* (${window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount, remDueW)})${advLine}%0AThank you for shopping with us!`;
             const digits = (s.customerPhone || '').replace(/\D/g, '');
             const url = digits.length >= 10 ? `https://wa.me/91${digits.slice(-10)}?text=${text}` : `https://wa.me/?text=${text}`;
             window.open(url, '_blank');
@@ -2742,7 +3033,12 @@
             const amtInput = document.getElementById('udh-pay-amount');
             amtInput.value = item.amount;
             amtInput.max = item.amount;
+            const dateInput = document.getElementById('udh-pay-date');
+            if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+            const modeInput = document.getElementById('udh-pay-mode');
+            if (modeInput) modeInput.value = 'Cash';
             document.getElementById('udhaar-pay-modal').classList.remove('hidden');
+            window.safeIcons();
         };
 
         window.closeUdhaarPayModal = () => {
@@ -2750,9 +3046,11 @@
         };
 
         window.submitUdhaarPayment = async (e) => {
-            e.preventDefault();
+            if (e && typeof e.preventDefault === 'function') e.preventDefault();
             const id = document.getElementById('udh-pay-id').value;
             const paidNow = Number(document.getElementById('udh-pay-amount').value) || 0;
+            const payMode = document.getElementById('udh-pay-mode')?.value || 'Cash';
+            const payDate = document.getElementById('udh-pay-date')?.value || new Date().toISOString().split('T')[0];
             const item = window.state.udhaar.find(u => u.id === id);
             if (!item || paidNow <= 0) return;
 
@@ -2761,11 +3059,93 @@
                 ...item,
                 amount: remaining,
                 status: remaining === 0 ? 'Settled' : 'Pending',
-                notes: `${item.notes || ''} (Paid ₹${paidNow})`.trim()
+                notes: `${item.notes || ''} (Paid ₹${paidNow} on ${payDate} via ${payMode})`.trim(),
+                updatedAt: new Date().toISOString()
             };
             await window.saveDocument('udhaar', updated);
+
+            // 1. Locate original sale if linked by ID or invoice reference
+            const origSale = window.state.sales.find(s =>
+                s.id === item.saleId ||
+                s.id === item.linkedSaleId ||
+                (s.invoiceNo && item.notes && item.notes.includes(s.invoiceNo))
+            );
+
+            // 2. Prepare line items so the new invoice always has clear, valid item rows
+            let lineItems = [];
+            if (origSale && origSale.items) {
+                try {
+                    const parsed = typeof origSale.items === 'string' ? JSON.parse(origSale.items) : origSale.items;
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        const origNames = parsed.map(it => `${it.name}${it.qty > 1 ? ' x' + it.qty : ''}`).join(', ');
+                        lineItems = [{
+                            name: `${origNames} (Balance Settlement - ${origSale.invoiceNo})`,
+                            qty: 1,
+                            price: paidNow
+                        }];
+                    }
+                } catch(err) {}
+            }
+
+            if (lineItems.length === 0) {
+                const cleanNotes = (item.notes || 'Udhaar Settlement').split(' (Paid')[0];
+                lineItems = [{
+                    name: `Balance Settlement - ${item.partyName} (${cleanNotes})`,
+                    qty: 1,
+                    price: paidNow
+                }];
+            }
+
+            // 3. Generate a brand-new tax invoice document on the payment date
+            const now = new Date();
+            const newInvoiceNo = 'INV-' + String(now.getTime()).slice(-5);
+            const isCash = payMode === 'Cash';
+            const isOnline = payMode === 'UPI' || payMode === 'Card';
+
+            const newSaleDoc = {
+                id: 'sale_' + (now.getTime() + 1),
+                docType: 'sale',
+                recordType: 'sale',
+                invoiceNo: newInvoiceNo,
+                parentInvoiceNo: origSale ? origSale.invoiceNo : '',
+                customerName: item.partyName || origSale?.customerName || 'Customer',
+                customerPhone: item.phone || origSale?.customerPhone || '',
+                paymentMode: payMode,
+                cashAmount: isCash ? paidNow : 0,
+                onlineAmount: isOnline ? paidNow : 0,
+                advancePaid: paidNow,
+                remainingAmount: 0,
+                subtotal: paidNow,
+                discountAmount: 0,
+                discountRaw: 0,
+                discountType: 'flat',
+                grandTotal: paidNow,
+                totalCost: 0,
+                status: 'Completed',
+                items: JSON.stringify(lineItems),
+                notes: `Remaining balance payment for ${origSale ? origSale.invoiceNo : 'Udhaar'} (Original Bill Total: ₹${origSale?.grandTotal || (paidNow + remaining)})`,
+                dateStr: payDate,
+                timestamp: now.getTime() + 1,
+                updatedAt: now.toISOString()
+            };
+
+            await window.saveDocument('sales', newSaleDoc);
+
+            // If original sale was an Advance bill, update original sale remainingAmount to match the new remaining
+            if (origSale && origSale.paymentMode === 'Advance') {
+                await window.saveDocument('sales', {
+                    ...origSale,
+                    remainingAmount: remaining,
+                    notes: `${origSale.notes || ''} (Paid ₹${paidNow} on ${payDate} -> ${newInvoiceNo})`.trim(),
+                    updatedAt: new Date().toISOString()
+                });
+            }
+
             window.closeUdhaarPayModal();
-            window.showToast(remaining === 0 ? 'Udhaar fully settled!' : `Partial payment of ₹${paidNow} recorded! Balance: ₹${remaining}`);
+            window.showToast(`Recorded ₹${paidNow} & generated Invoice ${newInvoiceNo} on ${payDate}!`, 'success');
+            if (typeof window.viewInvoice === 'function') {
+                window.viewInvoice(newSaleDoc.id, newSaleDoc);
+            }
         };
 
         window.settleUdhaar = async (id) => {
@@ -2882,13 +3262,19 @@
             const exp = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
             const net = gross - exp;
 
-            document.getElementById('pnl-revenue').textContent = formatINR(rev);
-            document.getElementById('pnl-cogs').textContent = `- ${formatINR(cogs)}`;
-            document.getElementById('pnl-gross-profit').textContent = formatINR(gross);
-            document.getElementById('pnl-expenses').textContent = `- ${formatINR(exp)}`;
+            const pnlRevEl = document.getElementById('pnl-revenue');
+            if (pnlRevEl) pnlRevEl.textContent = formatINR(rev);
+            const pnlCogsEl = document.getElementById('pnl-cogs');
+            if (pnlCogsEl) pnlCogsEl.textContent = `- ${formatINR(cogs)}`;
+            const pnlGrossEl = document.getElementById('pnl-gross-profit');
+            if (pnlGrossEl) pnlGrossEl.textContent = formatINR(gross);
+            const pnlExpEl = document.getElementById('pnl-expenses');
+            if (pnlExpEl) pnlExpEl.textContent = `- ${formatINR(exp)}`;
             const netEl = document.getElementById('pnl-net-profit');
-            netEl.textContent = formatINR(net);
-            netEl.className = `text-lg font-bold ${net >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            if (netEl) {
+                netEl.textContent = formatINR(net);
+                netEl.className = `text-lg font-bold ${net >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            }
             window.safeIcons();
         };
 
@@ -3022,7 +3408,7 @@
             const list = window.getFilteredSales();
             const rows = [["Invoice No", "Date", "Customer Name", "Phone", "Payment Mode", "Status", "Grand Total (INR)"]];
             list.forEach(s => {
-                rows.push([s.invoiceNo, s.dateStr, s.customerName, s.customerPhone, window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount), s.status || 'Completed', s.grandTotal]);
+                rows.push([s.invoiceNo, s.dateStr, s.customerName, s.customerPhone, window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount, s.remainingAmount), s.status || 'Completed', s.grandTotal]);
             });
             downloadCSV(`NawabKurta_Sales_${new Date().toISOString().split('T')[0]}.csv`, rows);
             window.showToast(`Exported ${list.length} filtered sales to CSV!`);
@@ -3050,7 +3436,7 @@
         window.exportFullReportCSV = () => {
             const rows = [["Type", "Date", "Reference / Title", "Category / Party", "Payment Mode", "Amount (INR)"]];
             window.state.sales.filter(s => s.status !== 'Refunded').forEach(s => {
-                rows.push(["SALE", s.dateStr, s.invoiceNo, s.customerName, window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount), s.grandTotal]);
+                rows.push(["SALE", s.dateStr, s.invoiceNo, s.customerName, window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount, s.remainingAmount), s.grandTotal]);
             });
             window.state.expenses.forEach(e => {
                 rows.push(["EXPENSE", e.dateStr, e.title, e.category, window.formatPaymentLabel(e.method, e.cashAmount, e.onlineAmount), -Math.abs(e.amount)]);
