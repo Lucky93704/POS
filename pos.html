@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nawab Kurta - Shop Management</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- JsBarcode (Real Scannable Code-128 Barcode Engine) -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <!-- Html5-QRCode (Built-in Phone Camera Barcode Scanner) -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- QRCode.js (Instant-Scan QR Tag Generator for Phone Cameras) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+        button {
+            cursor: pointer;
+            user-select: none;
+        }
+        input, textarea, select {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            pointer-events: auto !important;
+        }
+        /* Hide number input spinner arrows globally across Chrome, Safari, Edge, Opera & Firefox */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield !important;
+            appearance: textfield !important;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Animated Barcode Laser Sweep & Scanner Pulse */
+        @keyframes laserSweep {
+            0%, 100% { top: 14%; opacity: 0.9; }
+            50% { top: 82%; opacity: 1; }
+        }
+        @keyframes scanGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.22); }
+            50% { box-shadow: 0 0 0 5px rgba(79, 70, 229, 0); }
+        }
+        .scanner-laser-line {
+            position: absolute;
+            left: 3px;
+            right: 3px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #34d399, #ffffff, #34d399, transparent);
+            box-shadow: 0 0 6px #34d399;
+            animation: laserSweep 1.6s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .scanner-box-active {
+            animation: scanGlow 2s infinite;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Main App Container -->
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Desktop Sidebar -->
+        <aside class="hidden md:flex md:w-64 md:flex-col bg-slate-900 text-white flex-shrink-0 transition-all duration-200">
+            <div class="flex items-center justify-between h-16 px-5 bg-slate-950/60 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center shadow-lg shadow-brand-600/30">
+                        <i data-lucide="store" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <span id="sidebar-shop-name" class="font-bold text-base tracking-tight block leading-none">Nawab Kurta</span>
+                        <span class="text-[11px] text-slate-400 font-medium">Shop Management</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-1 px-3 py-5 space-y-1.5 overflow-y-auto">
+                <button type="button" onclick="window.location.href='index.html'" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition-all">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button type="button" onclick="window.location.href='pos.html'" id="nav-pos" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-brand-600 text-white shadow-sm">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span>POS & Billing</span>
+                </button>
+                <button type="button" onclick="window.location.href='sales.html'" id="nav-sales" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition-all">
+                    <i data-lucide="receipt" class="w-5 h-5"></i>
+                    <span>Sales & Invoices</span>
+                </button>
+                <button type="button" onclick="window.location.href='expenses.html'" id="nav-expenses" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition-all">
+                    <i data-lucide="wallet" class="w-5 h-5"></i>
+                    <span>Expenses & P&L</span>
+                </button>
+                <button type="button" onclick="window.location.href='udhaar.html'" id="nav-udhaar" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition-all">
+                    <i data-lucide="book-open-check" class="w-5 h-5"></i>
+                    <span>Udhaar Ledger</span>
+                    <span id="sidebar-udhaar-badge" class="hidden ml-auto bg-amber-500 text-slate-950 text-[10px] font-bold px-1.5 py-0.5 rounded-full">!</span>
+                </button>
+                <button type="button" onclick="window.openBinModal()" id="nav-bin" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 flex-shrink-0"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    <span>Recycle Bin</span>
+                    <span id="sidebar-bin-badge" class="hidden ml-auto bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                </button>
+            </nav>
+
+            <!-- Cloud Status & Settings -->
+            <div class="p-4 m-3 rounded-xl bg-slate-800/80 border border-slate-700/70 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-slate-400 font-medium">Firestore Collection</span>
+                    <span id="sync-badge" class="inline-flex items-center gap-1.5 text-xs font-medium text-amber-400">
+                        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                        Connecting...
+                    </span>
+                </div>
+                <div class="text-[11px] text-slate-300 font-mono break-all bg-slate-900/70 p-2 rounded-lg border border-slate-700/60" id="user-id-display" title="Active Firestore Collection Path">
+                    Path: /nawab_kurta/{doc}
+                </div>
+                <div class="pt-1">
+                    <button type="button" onclick="window.openCloudModal()" class="w-full py-2 px-3 bg-brand-600/30 hover:bg-brand-600/50 border border-brand-500/30 text-xs font-semibold text-brand-200 rounded-lg transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="cloud-cog" class="w-4 h-4"></i>
+                        Cloud Setup & Backup
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden pb-16 md:pb-0">
+            
+            <!-- Top Header -->
+            <header class="h-16 bg-white border-b border-slate-200/80 px-4 md:px-8 flex items-center justify-between flex-shrink-0 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="md:hidden w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white">
+                        <i data-lucide="store" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h1 id="page-title" class="text-base md:text-xl font-bold text-slate-900">Point of Sale (POS) & Billing</h1>
+                            <button type="button" onclick="window.openCloudModal()" id="header-cloud-pill" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition">
+                                <span id="header-cloud-dot" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                <span id="header-cloud-text">Syncing /nawab_kurta...</span>
+                            </button>
+                        </div>
+                        <p id="current-date-display" class="text-xs text-slate-500 hidden sm:block"></p>
+                    </div>
+                </div>
+
+                <!-- Quick Action Header Buttons -->
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="window.openBinModal()" title="Recycle Bin (Auto-deletes in 30 days)" class="relative p-2 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 rounded-xl transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                        <span id="header-bin-badge" class="hidden absolute -top-1 -right-1 bg-rose-600 text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center">0</span>
+                    </button>
+                    <button type="button" onclick="window.openCloudModal()" title="Cloud Settings" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition">
+                        <i data-lucide="cloud-cog" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Scrollable Views Container -->
+            <main class="flex-1 overflow-y-auto p-2.5 md:p-3.5 flex flex-col">
+
+                <!-- 1. DASHBOARD VIEW -->
+                <!-- dashboard view is in index.html -->
+
+                <!-- 2. POS & BILLING VIEW -->
+                <section id="view-pos" class="tab-view flex-1 flex flex-col min-h-0">
+                    <div class="w-full max-w-5xl mx-auto flex-1 flex flex-col min-h-0">
+                        <!-- Full-Screen Current Bill / Cart Checkout Panel (Viewport-Locked on Desktop — Zero Scroll Needed) -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-3.5 md:p-4 flex flex-col flex-1 min-h-0">
+                            <!-- Top Header -->
+                            <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100 flex-shrink-0">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shadow-2xs">
+                                        <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-slate-900 text-sm md:text-base leading-tight">Current POS Bill</h3>
+                                        <p class="text-[11px] text-slate-500 hidden sm:block">Fast billing &amp; instant digital receipt</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <button type="button" onclick="window.openBarcodeStudioModal()" class="text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/80 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                                        <i data-lucide="barcode" class="w-3.5 h-3.5"></i> Print Barcode Stickers
+                                    </button>
+                                    <button type="button" onclick="window.clearCart()" class="text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear Bill
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Exchange Summary Panel (Auto-shown when exchanging from Sales & Invoices) -->
+                            <div id="pos-exchange-panel" class="hidden mt-2.5 p-3 bg-amber-50/90 rounded-2xl border-2 border-amber-300 space-y-2 flex-shrink-0">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shadow-2xs">
+                                            <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <span class="text-xs font-extrabold text-amber-950 uppercase tracking-wider">Invoice Exchange Active</span>
+                                                <span id="pos-exch-ref-badge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-200 text-amber-950"></span>
+                                            </div>
+                                            <span class="text-[11px] text-amber-800 block">Returned item(s) loaded from original bill • Scan or add replacement item(s) below</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-extrabold text-amber-950 bg-white px-3 py-1.5 rounded-xl border border-amber-300">
+                                            Return Credit: <span id="pos-exch-credit-total" class="text-emerald-700">₹0</span>
+                                        </span>
+                                        <button type="button" onclick="window.exitExchangeMode()" class="px-2.5 py-1.5 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold transition">
+                                            Exit Exchange
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Returned Items List -->
+                                <div id="pos-exch-items-list" class="space-y-1.5"></div>
+                            </div>
+
+                            <!-- Standalone Barcode Scanner Bar (Auto-Capture + Laser Animation) -->
+                            <form onsubmit="window.handleBarcodeScanSubmit(event)" id="pos-scanner-dock" class="mt-2.5 p-2.5 bg-indigo-50/80 rounded-2xl border border-indigo-200 transition-all flex flex-col sm:flex-row items-stretch sm:items-center gap-2 scanner-box-active flex-shrink-0">
+                                <div onclick="document.getElementById('pos-barcode-scan-input')?.focus()" class="flex items-center gap-2.5 text-indigo-900 flex-shrink-0 cursor-pointer">
+                                    <div class="relative w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm overflow-hidden">
+                                        <i data-lucide="scan-barcode" class="w-4 h-4 relative z-10"></i>
+                                        <span id="scanner-laser-bar" class="scanner-laser-line"></span>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-xs font-bold leading-tight">Barcode Scanner</span>
+                                            <span id="scanner-live-pill" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live
+                                            </span>
+                                        </div>
+                                        <span id="scanner-status-sub" class="text-[10px] text-indigo-600 font-medium block">Laser active • Ready to scan</span>
+                                    </div>
+                                </div>
+                                <div class="relative flex-1 flex items-center">
+                                    <input type="text" id="pos-barcode-scan-input" autocomplete="off"
+                                        onfocus="window.updateScannerVisualState(true)"
+                                        onblur="window.updateScannerVisualState(false)"
+                                        oninput="window.handleScannerTypingPulse()"
+                                        placeholder="Ready — aim scanner at tag (or type Name|Price)..."
+                                        class="w-full pl-3.5 pr-9 py-2 bg-white border border-indigo-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                                    <span id="scanner-pulse-icon" class="absolute right-3 flex items-center justify-center pointer-events-none">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2 flex-shrink-0">
+                                    <button type="button" onclick="window.openCameraScannerModal()" class="flex-1 sm:flex-none px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-2xs">
+                                        <i data-lucide="camera" class="w-3.5 h-3.5 text-emerald-400"></i> Camera Scan
+                                    </button>
+                                    <button type="submit" class="flex-1 sm:flex-none px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5">
+                                        <i data-lucide="corner-down-left" class="w-3.5 h-3.5"></i> Add Scanned
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Fast Item Entry Bar (Direct Item Name, Qty & Rate) -->
+                            <form onsubmit="window.addPosLineItem(event)" class="my-2.5 p-2.5 md:p-3 bg-slate-50 rounded-2xl border border-slate-200/90 space-y-2 flex-shrink-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                                        <i data-lucide="zap" class="w-3.5 h-3.5 text-brand-600"></i> Quick Add Item to Bill
+                                    </span>
+                                    <span class="text-[10px] text-slate-400 hidden sm:inline">Type description, qty &amp; rate and press Enter</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-2 items-end">
+                                    <div class="md:col-span-6">
+                                        <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Item Name / Description *</label>
+                                        <input type="text" id="pos-line-name" required placeholder="e.g. White Cotton Kurta (Size 40)" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 md:col-span-4">
+                                        <div>
+                                            <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Qty *</label>
+                                            <input type="number" id="pos-line-qty" value="1" min="1" required class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-center text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Rate (₹) *</label>
+                                            <input type="number" id="pos-line-price" placeholder="e.g. 1500" min="0" required class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-right text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <button type="submit" class="w-full py-2 px-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-1.5">
+                                            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                                            <span>+ Add</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <!-- Cart Items Scrollable Table Area (Scrolls internally so Checkout Footer stays always visible) -->
+                            <div id="pos-cart-items" class="flex-1 overflow-y-auto divide-y divide-slate-100 my-1.5 pr-1 min-h-[58px] border border-slate-100 rounded-xl p-1.5 bg-slate-50/40"></div>
+
+                            <!-- Customer & Billing Controls (Pinned Visible at Bottom) -->
+                            <div class="space-y-2.5 pt-2.5 border-t border-slate-200/80 text-xs flex-shrink-0">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 items-center">
+                                    <input type="text" id="pos-customer-name" placeholder="Customer Name (Walk-in)" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white">
+                                    <input type="tel" id="pos-customer-phone" placeholder="WhatsApp / Phone No." class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white">
+                                    <div class="flex items-center justify-between gap-2 bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-200">
+                                        <label for="pos-bill-date" class="font-semibold text-slate-600 flex items-center gap-1 whitespace-nowrap">
+                                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-brand-600"></i> Date:
+                                        </label>
+                                        <input type="date" id="pos-bill-date" onchange="window.updatePosBillDateLabel()" class="flex-1 min-w-0 px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    </div>
+                                    <div class="flex items-center justify-between gap-2 bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-200">
+                                        <span class="font-semibold text-slate-600">Discount:</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <input type="number" id="posDiscount" value="" placeholder="" min="0" oninput="window.updateCartTotals()" class="w-20 px-2 py-1 bg-white border border-slate-200 rounded-lg text-right font-bold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                            <select id="pos-discount-type" onchange="window.updateCartTotals()" class="px-2 py-1 bg-slate-100 border border-slate-200 rounded-lg font-bold text-slate-700">
+                                                <option value="FLAT">₹</option>
+                                                <option value="PERCENT">%</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Payment Mode Selector -->
+                                <div>
+                                    <span class="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Payment Mode</span>
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                                        <button type="button" id="pay-mode-Cash" onclick="window.setPOSPaymentMode('Cash')" class="pos-pay-btn py-2 px-3 rounded-xl text-xs font-semibold border bg-brand-600 text-white border-brand-600 transition">Cash</button>
+                                        <button type="button" id="pay-mode-UPI" onclick="window.setPOSPaymentMode('UPI')" class="pos-pay-btn py-2 px-3 rounded-xl text-xs font-semibold border bg-white text-slate-700 border-slate-200 hover:bg-slate-100 transition">UPI / Online</button>
+                                        <button type="button" id="pay-mode-Card" onclick="window.setPOSPaymentMode('Card')" class="pos-pay-btn py-2 px-3 rounded-xl text-xs font-semibold border bg-white text-slate-700 border-slate-200 hover:bg-slate-100 transition">Card</button>
+                                        <button type="button" id="pay-mode-Split" onclick="window.setPOSPaymentMode('Split')" class="pos-pay-btn py-2 px-3 rounded-xl text-xs font-semibold border bg-white text-slate-700 border-slate-200 hover:bg-slate-100 transition">Split (Cash+Online)</button>
+                                        <button type="button" id="pay-mode-Advance" onclick="window.setPOSPaymentMode('Advance')" class="pos-pay-btn py-2 px-3 rounded-xl text-xs font-semibold border bg-white text-slate-700 border-slate-200 hover:bg-slate-100 transition">Advance / Partial</button>
+                                        <button type="button" id="pay-mode-Udhaar" onclick="window.setPOSPaymentMode('Udhaar')" class="pos-pay-btn py-2 px-3 rounded-xl text-xs font-semibold border bg-white text-slate-700 border-slate-200 hover:bg-slate-100 transition">Full Udhaar</button>
+                                    </div>
+
+                                    <!-- Split Payment Breakdown Box (Compact Single-Row) -->
+                                    <div id="pos-split-box" class="hidden mt-2 px-3 py-2 rounded-xl bg-indigo-50/80 border border-indigo-200/90">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 items-center">
+                                            <div class="flex items-center gap-2">
+                                                <label for="pos-split-cash" class="text-[11px] font-bold text-indigo-950 whitespace-nowrap">Cash (₹):</label>
+                                                <input type="number" id="pos-split-cash" min="0" step="1" placeholder="0" oninput="window.handlePosSplitInput('cash')" class="flex-1 min-w-0 px-2.5 py-1.5 bg-white border border-indigo-200 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <label for="pos-split-online" class="text-[11px] font-bold text-indigo-950 whitespace-nowrap">Online / UPI (₹):</label>
+                                                <input type="number" id="pos-split-online" min="0" step="1" placeholder="0" oninput="window.handlePosSplitInput('online')" class="flex-1 min-w-0 px-2.5 py-1.5 bg-white border border-indigo-200 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Advance & Remaining Balance Breakdown Box (Compact Single-Row) -->
+                                    <div id="pos-advance-box" class="hidden mt-2 px-3 py-2 rounded-xl bg-amber-50/80 border border-amber-200/90">
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-center">
+                                            <div class="flex items-center gap-2">
+                                                <label for="pos-adv-cash" class="text-[11px] font-bold text-amber-950 whitespace-nowrap">Adv Cash (₹):</label>
+                                                <input type="number" id="pos-adv-cash" min="0" step="1" placeholder="0" oninput="window.handlePosAdvanceInput()" class="flex-1 min-w-0 px-2.5 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <label for="pos-adv-online" class="text-[11px] font-bold text-amber-950 whitespace-nowrap">Adv Online (₹):</label>
+                                                <input type="number" id="pos-adv-online" min="0" step="1" placeholder="0" oninput="window.handlePosAdvanceInput()" class="flex-1 min-w-0 px-2.5 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <label for="pos-adv-remaining" class="text-[11px] font-bold text-rose-700 whitespace-nowrap">Due (Udhaar) ₹:</label>
+                                                <input type="number" id="pos-adv-remaining" readonly value="0" class="flex-1 min-w-0 px-2.5 py-1.5 bg-rose-50 border border-rose-200 rounded-lg text-xs font-extrabold text-rose-700 cursor-not-allowed">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Grand Total & Checkout Button -->
+                                <div class="p-3 md:p-3.5 rounded-2xl bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3">
+                                    <div class="flex items-center gap-5">
+                                        <div>
+                                            <span class="text-[10px] text-slate-400 block leading-tight">Grand Total Payable</span>
+                                            <span id="pos-grand-total" class="text-xl md:text-2xl font-extrabold text-emerald-400 leading-tight">₹0</span>
+                                        </div>
+                                        <div class="hidden sm:block border-l border-slate-800 pl-5 text-xs space-y-0.5">
+                                            <div class="text-slate-400">Subtotal: <span id="pos-subtotal" class="text-slate-200 font-semibold">₹0</span></div>
+                                            <div class="text-amber-400">Discount: <span id="pos-discount-display" class="font-semibold">- ₹0</span></div>
+                                            <div id="pos-exch-credit-row" class="hidden text-indigo-300 font-semibold">Exchange Credit: <span id="pos-exch-credit-display">- ₹0</span></div>
+                                            <div id="pos-exch-balance-row" class="hidden text-rose-400 font-bold">Balance Return / Store Credit: <span id="pos-exch-balance-display">₹0</span></div>
+                                        </div>
+                                    </div>
+                                    <button type="button" onclick="window.completeSale()" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-sm rounded-xl shadow-lg transition flex items-center gap-2">
+                                        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                                        <span>Complete Sale</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. SALES HISTORY & INVOICES VIEW -->
+                <!-- sales view is in sales.html -->
+
+                <!-- 5. EXPENSE MANAGEMENT & P&L VIEW -->
+                <!-- expenses view is in expenses.html -->
+
+                <!-- 6. UDHAAR (CREDIT / KHATA) LEDGER VIEW -->
+                <!-- udhaar view is in udhaar.html -->
+
+            </main>
+        </div>
+
+        <!-- Mobile Bottom Navigation Bar -->
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 flex items-center justify-around z-30 px-1">
+            <button type="button" onclick="window.location.href='index.html'" id="mnav-dashboard" class="mnav-btn flex flex-col items-center justify-center py-1 px-2 text-slate-500">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="text-[10px] font-semibold mt-0.5">Home</span>
+            </button>
+            <button type="button" onclick="window.location.href='pos.html'" id="mnav-pos" class="mnav-btn flex flex-col items-center justify-center py-1 px-2 text-brand-600">
+                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                <span class="text-[10px] font-semibold mt-0.5">POS Bill</span>
+            </button>
+            <button type="button" onclick="window.location.href='sales.html'" id="mnav-sales" class="mnav-btn flex flex-col items-center justify-center py-1 px-2 text-slate-500">
+                <i data-lucide="receipt" class="w-5 h-5"></i>
+                <span class="text-[10px] font-semibold mt-0.5">Sales</span>
+            </button>
+            <button type="button" onclick="window.location.href='expenses.html'" id="mnav-expenses" class="mnav-btn flex flex-col items-center justify-center py-1 px-2 text-slate-500">
+                <i data-lucide="wallet" class="w-5 h-5"></i>
+                <span class="text-[10px] font-semibold mt-0.5">Expenses</span>
+            </button>
+            <button type="button" onclick="window.location.href='udhaar.html'" id="mnav-udhaar" class="mnav-btn flex flex-col items-center justify-center py-1 px-2 text-slate-500">
+                <i data-lucide="book-open-check" class="w-5 h-5"></i>
+                <span class="text-[10px] font-semibold mt-0.5">Udhaar</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- 5. Printable Digital Receipt / Invoice Modal -->
+    <div id="receipt-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between no-print">
+                <span class="font-semibold text-sm flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> Tax Invoice / Receipt
+                </span>
+                <button type="button" onclick="window.closeReceiptModal()" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Printable Receipt Area -->
+            <div id="printable-receipt" class="p-6 space-y-4 text-slate-800 bg-white">
+                <div class="text-center border-b border-dashed border-slate-300 pb-4">
+                    <h2 id="rcpt-shop-title" class="text-xl font-bold tracking-tight text-slate-900">NAWAB KURTA</h2>
+                    <p id="rcpt-shop-sub" class="text-xs text-slate-500">Shaheen Bagh, New Delhi • Ph: +91 98765 43210</p>
+                    <p id="rcpt-shop-gst" class="text-[11px] text-slate-400 font-mono mt-0.5">GSTIN: 07AABCN1234F1Z5</p>
+                    <span id="rcpt-invoice-no" class="inline-block mt-2 text-xs font-mono bg-slate-100 px-2.5 py-0.5 rounded font-bold">INV-0000</span>
+                </div>
+
+                <div class="flex justify-between text-xs text-slate-600 border-b border-dashed border-slate-200 pb-3">
+                    <div>
+                        <span class="text-slate-400 block">Billed To:</span>
+                        <strong id="rcpt-customer" class="text-slate-800">Walk-in Customer</strong>
+                        <div id="rcpt-phone" class="text-slate-500"></div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-slate-400 block">Date & Payment:</span>
+                        <strong id="rcpt-date" class="text-slate-800"></strong>
+                        <div id="rcpt-mode" class="font-semibold text-brand-600">Cash</div>
+                    </div>
+                </div>
+
+                <table class="w-full text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-slate-400 uppercase">
+                            <th class="py-1.5 text-left">Item</th>
+                            <th class="py-1.5 text-center">Qty</th>
+                            <th class="py-1.5 text-right">Rate</th>
+                            <th class="py-1.5 text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rcpt-items-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+
+                <div class="border-t border-dashed border-slate-300 pt-3 space-y-1 text-xs">
+                    <div class="flex justify-between text-slate-600">
+                        <span>Subtotal</span>
+                        <span id="rcpt-subtotal">₹0</span>
+                    </div>
+                    <div class="flex justify-between text-emerald-600">
+                        <span>Discount</span>
+                        <span id="rcpt-discount">- ₹0</span>
+                    </div>
+                    <div id="rcpt-exchange-row" class="hidden flex justify-between text-indigo-700 font-semibold">
+                        <span id="rcpt-exchange-label">Less Exchange Credit</span>
+                        <span id="rcpt-exchange-credit">- ₹0</span>
+                    </div>
+                    <div class="flex justify-between text-base font-bold text-slate-900 pt-1 border-t border-slate-200">
+                        <span>Grand Total</span>
+                        <span id="rcpt-total">₹0</span>
+                    </div>
+                    <div id="rcpt-advance-rows" class="hidden pt-1.5 mt-1.5 border-t border-dashed border-slate-200 space-y-1">
+                        <div class="flex justify-between text-emerald-700 font-semibold">
+                            <span>Advance Paid</span>
+                            <span id="rcpt-advance-paid">₹0</span>
+                        </div>
+                        <div class="flex justify-between text-rose-600 font-bold text-sm">
+                            <span>Remaining Balance Due</span>
+                            <span id="rcpt-balance-due">₹0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center pt-3 border-t border-dashed border-slate-200">
+                    <p class="text-[11px] text-slate-500">Thank you for shopping at Nawab Kurta! Visit again.</p>
+                </div>
+            </div>
+
+            <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 space-y-2.5 no-print">
+                <div class="flex items-center justify-between gap-2">
+                    <label for="rcpt-print-size" class="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="ruler" class="w-3.5 h-3.5 text-brand-600"></i> Print Size:
+                    </label>
+                    <select id="rcpt-print-size" onchange="localStorage.setItem('nk_rcpt_print_size', this.value)" class="flex-1 max-w-[230px] px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="58mm" selected>58mm Thermal (2-Inch POSiFLOW)</option>
+                        <option value="80mm">80mm Thermal Roll (3-Inch)</option>
+                        <option value="A5">A5 Half-Page Invoice</option>
+                        <option value="A4">A4 Full-Page Invoice</option>
+                    </select>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <button type="button" onclick="window.shareReceiptWhatsApp()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="share-2" class="w-4 h-4"></i> WhatsApp
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="window.printFormattedReceipt()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm">
+                            <i data-lucide="printer" class="w-4 h-4"></i> Print Receipt
+                        </button>
+                        <button type="button" onclick="window.closeReceiptModal()" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-xl">Done</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. Edit Cart Line-Item Modal (#editCartItemModal) -->
+    <div id="editCartItemModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden" onclick="event.stopPropagation()">
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="pen-line" class="w-4 h-4 text-brand-400"></i>
+                    <h3 class="font-bold text-sm">Edit Bill Item Details</h3>
+                </div>
+                <button type="button" onclick="window.closeEditCartItemModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form onsubmit="window.saveEditedCartItem(event)" class="p-6 space-y-4">
+                <input type="hidden" id="editCartItemId">
+                <div>
+                    <label for="editCartItemName" class="block text-xs font-semibold text-slate-700 mb-1">Item Name / Description *</label>
+                    <input type="text" id="editCartItemName" required placeholder="e.g. White Cotton Kurta (Size 40)" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="editCartItemQty" class="block text-xs font-semibold text-slate-700 mb-1">Quantity *</label>
+                        <input type="number" id="editCartItemQty" required min="1" step="1" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-center text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label for="editCartItemRate" class="block text-xs font-semibold text-slate-700 mb-1">Rate (₹) *</label>
+                        <input type="number" id="editCartItemRate" required min="0" step="1" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-right text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+                <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="window.closeEditCartItemModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Update Bill Item</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 11. Standalone Barcode Sticker Generator & Print Studio Modal -->
+    <div id="barcode-studio-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4" onclick="window.closeBarcodeStudioModal()">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col" onclick="event.stopPropagation()">
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i data-lucide="barcode" class="w-5 h-5 text-indigo-400"></i>
+                    <div>
+                        <h3 class="font-bold text-sm">Barcode Sticker Generator &amp; Printer</h3>
+                        <p class="text-[11px] text-slate-400">Standalone Code-128 labels (Encodes Name + Price directly — No Inventory Needed)</p>
+                    </div>
+                </div>
+                <button type="button" onclick="window.closeBarcodeStudioModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-4 text-xs flex-1">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2">
+                        <label for="bc-item-name" class="block font-semibold text-slate-700 mb-1">Item Name *</label>
+                        <input type="text" id="bc-item-name" maxlength="32" placeholder="e.g. Banarasi Silk Kurta" oninput="window.updateBarcodeStudioPreview()" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <p class="text-[10px] text-slate-400 mt-1">Keep concise (15–25 chars) for fastest scanning on small tags.</p>
+                    </div>
+                    <div>
+                        <label for="bc-item-price" class="block font-semibold text-slate-700 mb-1">Price (₹) *</label>
+                        <input type="number" id="bc-item-price" min="0" step="1" placeholder="1699" oninput="window.updateBarcodeStudioPreview()" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label for="bc-format" class="block font-semibold text-slate-700 mb-1">Code Type *</label>
+                        <select id="bc-format" onchange="window.updateBarcodeStudioPreview()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50/40 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="QR" selected>QR Code (Best for Phone Camera)</option>
+                            <option value="CODE128">Code-128 Bars (USB / Laser Scanner)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="bc-qty" class="block font-semibold text-slate-700 mb-1">Stickers Qty *</label>
+                        <input type="number" id="bc-qty" value="1" min="1" max="200" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label for="bc-paper-mode" class="block font-semibold text-slate-700 mb-1">Label Size</label>
+                        <select id="bc-paper-mode" onchange="localStorage.setItem('nk_bc_paper_mode', this.value)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="50x25" selected>50mm &times; 25mm (2&times;1 in GLUN)</option>
+                            <option value="50x25_CONT">50mm &times; 25mm (Continuous / Fix Skip)</option>
+                            <option value="40x25">40mm &times; 25mm Thermal</option>
+                            <option value="38x25">38mm &times; 25mm Thermal</option>
+                            <option value="50x30">50mm &times; 30mm Thermal</option>
+                            <option value="58x40">58mm &times; 40mm (2-Inch Tall)</option>
+                            <option value="A4">A4 Sheet (3 &times; 8 Grid)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-4 bg-slate-50 px-3.5 py-2.5 rounded-xl border border-slate-200/80">
+                    <span class="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Label Options:</span>
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700">
+                        <input type="checkbox" id="bc-show-shop" onchange="window.updateBarcodeStudioPreview()" class="rounded text-brand-600 focus:ring-brand-500">
+                        Show Shop Name
+                    </label>
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700">
+                        <input type="checkbox" id="bc-show-price" checked onchange="window.updateBarcodeStudioPreview()" class="rounded text-brand-600 focus:ring-brand-500">
+                        Show Price
+                    </label>
+                </div>
+
+                <!-- Live Scannable Preview Box -->
+                <div class="border border-dashed border-slate-300 bg-slate-50 p-5 rounded-2xl flex flex-col items-center justify-center">
+                    <span id="bc-preview-badge" class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">Live Scannable Preview (QR Code)</span>
+                    <div id="bc-live-card" class="bg-white border border-slate-300 rounded-lg shadow-sm px-3.5 py-2.5 w-[250px] flex flex-col items-center text-center">
+                        <div id="bc-prev-shop" class="hidden text-[9px] font-extrabold uppercase tracking-wider text-slate-900 leading-tight mb-0.5">NAWAB KURTA</div>
+                        <div id="bc-prev-name" class="text-[11px] font-bold text-slate-950 truncate w-full leading-tight">Banarasi Silk Kurta</div>
+                        <div id="bc-prev-qr" class="my-1.5 flex items-center justify-center"></div>
+                        <svg id="bc-prev-svg" class="hidden my-1 max-w-full"></svg>
+                        <div id="bc-prev-price" class="text-sm font-extrabold text-slate-950 leading-none">₹1,699</div>
+                    </div>
+                    <p id="bc-encoded-hint" class="text-[10px] font-mono text-slate-400 mt-2.5">Encoded data: Banarasi Silk Kurta|1699</p>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
+                <button type="button" onclick="window.closeBarcodeStudioModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200 rounded-xl">Close</button>
+                <button type="button" onclick="window.printStandaloneBarcodes()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Print Stickers</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 12. Phone Camera Barcode Scanner Modal -->
+    <div id="camera-scanner-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4" onclick="window.closeCameraScannerModal()">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden" onclick="event.stopPropagation()">
+            <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i data-lucide="camera" class="w-5 h-5 text-emerald-400"></i>
+                    <div>
+                        <h3 class="font-bold text-sm">Phone Camera Barcode Scanner</h3>
+                        <p class="text-[11px] text-slate-400">Point rear camera at any printed Code-128 tag</p>
+                    </div>
+                </div>
+                <button type="button" onclick="window.closeCameraScannerModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-4 space-y-3">
+                <div id="camera-scanner-reader" class="w-full rounded-xl overflow-hidden bg-slate-950 min-h-[260px]"></div>
+                <div id="camera-scanner-status" class="text-xs text-center font-medium text-slate-600 bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2">
+                    Starting camera...
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <button type="button" id="camera-torch-btn" onclick="window.toggleCameraTorch()" class="hidden px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold rounded-xl transition inline-flex items-center gap-1.5">
+                        <i data-lucide="flashlight" class="w-3.5 h-3.5"></i> Flash
+                    </button>
+                    <label class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition inline-flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="image" class="w-3.5 h-3.5 text-indigo-600"></i> Scan Photo
+                        <input type="file" id="camera-file-scan-input" accept="image/*" capture="environment" onchange="window.scanBarcodeFromFile(event)" class="hidden">
+                    </label>
+                    <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer ml-auto">
+                        <input type="checkbox" id="camera-continuous-mode" checked class="rounded text-brand-600 focus:ring-brand-500">
+                        Continuous
+                    </label>
+                    <button type="button" onclick="window.closeCameraScannerModal()" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Page-Specific POS & Billing Logic -->
+    <script>
+        // 1B. Standalone Barcode Studio (QR Code + Code-128 — Generate, Print & Scan, Zero Inventory Needed)
+        window.openBarcodeStudioModal = () => {
+            const modal = document.getElementById('barcode-studio-modal');
+            if (!modal) return;
+            const savedPaper = localStorage.getItem('nk_bc_paper_mode');
+            const paperSel = document.getElementById('bc-paper-mode');
+            if (savedPaper && paperSel && Array.from(paperSel.options).some(o => o.value === savedPaper)) {
+                paperSel.value = savedPaper;
+            }
+            const nameInp = document.getElementById('bc-item-name');
+            const priceInp = document.getElementById('bc-item-price');
+            if (nameInp && !nameInp.value.trim()) nameInp.value = 'Banarasi Silk Kurta';
+            if (priceInp && !priceInp.value.trim()) priceInp.value = '1699';
+            modal.classList.remove('hidden');
+            window.updateBarcodeStudioPreview();
+            window.safeIcons();
+            setTimeout(() => nameInp && nameInp.focus(), 50);
+        };
+
+        window.closeBarcodeStudioModal = () => {
+            const modal = document.getElementById('barcode-studio-modal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.getBarcodePayload = () => {
+            const rawName = (document.getElementById('bc-item-name')?.value || '').replace(/\|/g, ' ').trim();
+            const itemName = rawName || 'Item';
+            const priceVal = Math.max(0, Math.round(Number(document.getElementById('bc-item-price')?.value) || 0));
+            return {
+                itemName,
+                priceVal,
+                encoded: `${itemName}|${priceVal}`
+            };
+        };
+
+        window.updateBarcodeStudioPreview = () => {
+            const { itemName, priceVal, encoded } = window.getBarcodePayload();
+            const codeFormat = document.getElementById('bc-format')?.value || 'QR';
+            const showShop = Boolean(document.getElementById('bc-show-shop')?.checked);
+            const showPrice = document.getElementById('bc-show-price')?.checked !== false;
+
+            const badgeEl = document.getElementById('bc-preview-badge');
+            const shopEl = document.getElementById('bc-prev-shop');
+            const nameEl = document.getElementById('bc-prev-name');
+            const priceEl = document.getElementById('bc-prev-price');
+            const hintEl = document.getElementById('bc-encoded-hint');
+            const qrWrap = document.getElementById('bc-prev-qr');
+            const svgEl = document.getElementById('bc-prev-svg');
+
+            if (badgeEl) badgeEl.textContent = codeFormat === 'QR' ? 'Live Scannable Preview (QR Code — Instant Phone Scan)' : 'Live Scannable Preview (Code-128 — 1D Bars)';
+            if (shopEl) {
+                shopEl.textContent = window.state.shopName || 'NAWAB KURTA';
+                shopEl.classList.toggle('hidden', !showShop);
+            }
+            if (nameEl) nameEl.textContent = itemName;
+            if (priceEl) {
+                priceEl.textContent = formatINR(priceVal);
+                priceEl.classList.toggle('hidden', !showPrice);
+            }
+            if (hintEl) {
+                if (codeFormat === 'CODE128' && encoded.length > 16) {
+                    hintEl.className = 'text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1 mt-2.5 text-center';
+                    hintEl.textContent = `Encoded (${encoded.length} chars): ${encoded} — Tip: For 50mm 1D barcodes, keep under 16 chars (e.g. "Silk Kurta|1699") or use QR Code.`;
+                } else {
+                    hintEl.className = 'text-[10px] font-mono text-slate-400 mt-2.5';
+                    hintEl.textContent = `Encoded data: ${encoded}`;
+                }
+            }
+
+            if (codeFormat === 'QR') {
+                if (svgEl) svgEl.classList.add('hidden');
+                if (qrWrap) {
+                    qrWrap.classList.remove('hidden');
+                    qrWrap.innerHTML = '';
+                    if (typeof window.QRCode === 'function') {
+                        new window.QRCode(qrWrap, {
+                            text: encoded,
+                            width: 96,
+                            height: 96,
+                            colorDark: '#000000',
+                            colorLight: '#ffffff',
+                            correctLevel: window.QRCode.CorrectLevel.M
+                        });
+                    }
+                }
+            } else {
+                if (qrWrap) {
+                    qrWrap.classList.add('hidden');
+                    qrWrap.innerHTML = '';
+                }
+                if (svgEl) svgEl.classList.remove('hidden');
+                if (typeof window.JsBarcode === 'function') {
+                    try {
+                        window.JsBarcode('#bc-prev-svg', encoded, {
+                            format: 'CODE128',
+                            width: 1.5,
+                            height: 44,
+                            displayValue: false,
+                            background: '#ffffff',
+                            lineColor: '#000000',
+                            margin: 10
+                        });
+                    } catch (err) {
+                        console.warn('JsBarcode preview warning:', err);
+                    }
+                }
+            }
+        };
+
+        window.printStandaloneBarcodes = () => {
+            const rawName = (document.getElementById('bc-item-name')?.value || '').replace(/\|/g, ' ').trim();
+            if (!rawName) {
+                window.showToast('Please enter an Item Name to generate barcode', 'warning');
+                document.getElementById('bc-item-name')?.focus();
+                return;
+            }
+            const { itemName, priceVal, encoded } = window.getBarcodePayload();
+            const codeFormat = document.getElementById('bc-format')?.value || 'QR';
+            const qty = Math.max(1, Math.min(200, parseInt(document.getElementById('bc-qty')?.value, 10) || 1));
+            const paperMode = document.getElementById('bc-paper-mode')?.value || '50x25';
+            const showShop = Boolean(document.getElementById('bc-show-shop')?.checked);
+            const showPrice = document.getElementById('bc-show-price')?.checked !== false;
+            const shopTitle = (window.state.shopName || 'NAWAB KURTA').replace(/</g, '&lt;');
+            const safeName = itemName.replace(/</g, '&lt;');
+            const safeEncoded = encoded.replace(/"/g, '&quot;');
+            const formattedPrice = formatINR(priceVal);
+
+            let labelsHtml = '';
+            for (let i = 0; i < qty; i++) {
+                if (codeFormat === 'QR') {
+                    labelsHtml += `
+                        <div class="label label-qr">
+                            <div class="qr-box" data-code="${safeEncoded}"></div>
+                            <div class="qr-info">
+                                ${showShop ? `<div class="shop">${shopTitle}</div>` : ''}
+                                <div class="name">${safeName}</div>
+                                ${showPrice ? `<div class="price">${formattedPrice}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    labelsHtml += `
+                        <div class="label label-1d">
+                            ${showShop ? `<div class="shop">${shopTitle}</div>` : ''}
+                            <div class="name">${safeName}</div>
+                            <img class="bc-img" data-code="${safeEncoded}" alt="Barcode" />
+                            ${showPrice ? `<div class="price">${formattedPrice}</div>` : ''}
+                        </div>
+                    `;
+                }
+            }
+
+            const isContinuous = paperMode === '50x25_CONT';
+            const baseKey = isContinuous ? '50x25' : paperMode;
+
+            // Tuned dimensions: 15mm QR leaves 28.5mm text column so "Banarasi Silk Kurta" never clips
+            const labelDims = {
+                '50x25': { w: 50, h: 25, qr: 15, bcH: 9.5, namePt: 7.2, pricePt: 9.5, shopPt: 5.8 },
+                '40x25': { w: 40, h: 25, qr: 13.5, bcH: 8.8, namePt: 6.5, pricePt: 8.5, shopPt: 5.2 },
+                '38x25': { w: 38, h: 25, qr: 13, bcH: 8.5, namePt: 6.2, pricePt: 8, shopPt: 5 },
+                '50x30': { w: 50, h: 30, qr: 18, bcH: 11.5, namePt: 8.2, pricePt: 10.5, shopPt: 6.5 },
+                '58x40': { w: 58, h: 40, qr: 23, bcH: 14.5, namePt: 9.8, pricePt: 12.5, shopPt: 7.5 }
+            };
+            const dim = labelDims[baseKey] || labelDims['50x25'];
+            const safeH = (dim.h - 2.2).toFixed(1);
+
+            const thermalCss = isContinuous ? `
+                @page { size: ${dim.w}mm auto; margin: 0; }
+                * { box-sizing: border-box; }
+                html, body {
+                    margin: 0; padding: 0; width: ${dim.w}mm;
+                    font-family: Arial, Helvetica, sans-serif;
+                    background: #fff; color: #000;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .label {
+                    width: ${dim.w}mm; height: 25mm;
+                    margin-bottom: 3mm;
+                    padding: 1.5mm 2.5mm;
+                    display: flex; flex-direction: column;
+                    align-items: center; justify-content: center;
+                    text-align: center; overflow: hidden;
+                    break-inside: avoid; page-break-inside: avoid;
+                }
+                .label:last-child { margin-bottom: 0; }
+                .label-1d { gap: 0.5mm; }
+                .label-qr {
+                    flex-direction: row; align-items: center; justify-content: flex-start;
+                    text-align: left; gap: 2mm; padding: 1.5mm 2.5mm;
+                }
+                .qr-box {
+                    flex-shrink: 0; width: ${dim.qr}mm; height: ${dim.qr}mm;
+                    display: flex; align-items: center; justify-content: center;
+                }
+                .qr-box img, .qr-box canvas {
+                    width: ${dim.qr}mm !important; height: ${dim.qr}mm !important;
+                    image-rendering: pixelated;
+                }
+                .qr-info {
+                    flex: 1; min-width: 0; padding-right: 0.5mm;
+                    display: flex; flex-direction: column;
+                    justify-content: center; gap: 0.8mm;
+                }
+                .shop {
+                    font-size: ${dim.shopPt}pt; font-weight: 800;
+                    letter-spacing: 0.2px; text-transform: uppercase;
+                    line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+                }
+                .name {
+                    font-size: ${dim.namePt}pt; font-weight: 700; line-height: 1.15;
+                    overflow: hidden; max-width: 100%;
+                }
+                .label-1d .name { white-space: nowrap; text-overflow: ellipsis; }
+                .label-qr .name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+                .bc-img {
+                    display: block; max-width: 100%; height: ${dim.bcH}mm;
+                    margin: 0 auto; image-rendering: pixelated;
+                }
+                .price { font-size: ${dim.pricePt}pt; font-weight: 900; line-height: 1.05; }
+            ` : `
+                @page { size: ${dim.w}mm ${dim.h}mm; margin: 0; }
+                * { box-sizing: border-box; }
+                html, body {
+                    margin: 0; padding: 0; width: ${dim.w}mm;
+                    font-family: Arial, Helvetica, sans-serif;
+                    background: #fff; color: #000;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .label {
+                    width: ${dim.w}mm; height: ${safeH}mm;
+                    padding: 1.5mm 2.5mm;
+                    display: flex; flex-direction: column;
+                    align-items: center; justify-content: center;
+                    text-align: center; overflow: hidden;
+                    break-inside: avoid; page-break-inside: avoid;
+                }
+                .label:not(:last-child) {
+                    page-break-after: always;
+                    break-after: page;
+                }
+                .label-1d { gap: 0.5mm; }
+                .label-qr {
+                    flex-direction: row; align-items: center; justify-content: flex-start;
+                    text-align: left; gap: 2mm; padding: 1.5mm 2.5mm;
+                }
+                .qr-box {
+                    flex-shrink: 0; width: ${dim.qr}mm; height: ${dim.qr}mm;
+                    display: flex; align-items: center; justify-content: center;
+                }
+                .qr-box img, .qr-box canvas {
+                    width: ${dim.qr}mm !important; height: ${dim.qr}mm !important;
+                    image-rendering: pixelated;
+                }
+                .qr-info {
+                    flex: 1; min-width: 0; padding-right: 0.5mm;
+                    display: flex; flex-direction: column;
+                    justify-content: center; gap: 0.8mm;
+                }
+                .shop {
+                    font-size: ${dim.shopPt}pt; font-weight: 800;
+                    letter-spacing: 0.2px; text-transform: uppercase;
+                    line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+                }
+                .name {
+                    font-size: ${dim.namePt}pt; font-weight: 700; line-height: 1.15;
+                    overflow: hidden; max-width: 100%;
+                }
+                .label-1d .name { white-space: nowrap; text-overflow: ellipsis; }
+                .label-qr .name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+                .bc-img {
+                    display: block; max-width: 100%; height: ${dim.bcH}mm;
+                    margin: 0 auto; image-rendering: pixelated;
+                }
+                .price { font-size: ${dim.pricePt}pt; font-weight: 900; line-height: 1.05; }
+            `;
+
+            const a4Css = `
+                @page { size: A4; margin: 8mm; }
+                * { box-sizing: border-box; }
+                body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background: #fff; color: #000; }
+                .grid {
+                    display: grid; grid-template-columns: repeat(3, 1fr);
+                    gap: 4mm; width: 100%;
+                }
+                .label {
+                    height: 32mm; border: 0.3mm dashed #cbd5e1; border-radius: 2mm;
+                    padding: 2mm 3mm;
+                    display: flex; flex-direction: column; align-items: center;
+                    justify-content: center; text-align: center; break-inside: avoid;
+                    overflow: hidden; gap: 1mm;
+                }
+                .label-qr {
+                    flex-direction: row; align-items: center; justify-content: flex-start; text-align: left; gap: 3mm; padding: 2.5mm 3.5mm;
+                }
+                .qr-box { flex-shrink: 0; width: 22mm; height: 22mm; display: flex; align-items: center; justify-content: center; }
+                .qr-box img, .qr-box canvas { width: 22mm !important; height: 22mm !important; image-rendering: pixelated; }
+                .qr-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 1.5mm; }
+                .shop { font-size: 7.5pt; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; line-height: 1.1; }
+                .name { font-size: 9pt; font-weight: 700; line-height: 1.2; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+                .bc-img { display: block; max-width: 100%; height: 13mm; margin: 0 auto; image-rendering: pixelated; }
+                .price { font-size: 11.5pt; font-weight: 800; line-height: 1.1; }
+            `;
+
+            const printWin = window.open('', '_blank');
+            if (!printWin) {
+                window.showToast('Pop-up blocked! Please allow pop-ups to print stickers.', 'error');
+                return;
+            }
+            const isA4 = paperMode === 'A4';
+            printWin.document.write(`<!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Print Labels - ${safeName}</title>
+                    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"><\/script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+                    <style>${isA4 ? a4Css : thermalCss}</style>
+                </head>
+                <body>
+                    ${isA4 ? `<div class="grid">${labelsHtml}</div>` : labelsHtml}
+                    <script>
+                        window.onload = function() {
+                            document.querySelectorAll('.bc-img').forEach(function(img) {
+                                var code = img.getAttribute('data-code') || '';
+                                var canvas = document.createElement('canvas');
+                                JsBarcode(canvas, code, {
+                                    format: 'CODE128',
+                                    width: ${isA4 ? 2 : 2},
+                                    height: ${isA4 ? 70 : 56},
+                                    displayValue: false,
+                                    background: '#ffffff',
+                                    lineColor: '#000000',
+                                    margin: 12
+                                });
+                                img.src = canvas.toDataURL('image/png');
+                            });
+                            document.querySelectorAll('.qr-box').forEach(function(box) {
+                                new QRCode(box, {
+                                    text: box.getAttribute('data-code'),
+                                    width: 180,
+                                    height: 180,
+                                    colorDark: '#000000',
+                                    colorLight: '#ffffff',
+                                    correctLevel: QRCode.CorrectLevel.M
+                                });
+                            });
+                            setTimeout(function() { window.print(); }, 350);
+                        };
+                    <\/script>
+                </body>
+                </html>`);
+            printWin.document.close();
+        };
+
+        window.updateScannerVisualState = (isFocused) => {
+            const dock = document.getElementById('pos-scanner-dock');
+            const pill = document.getElementById('scanner-live-pill');
+            const sub = document.getElementById('scanner-status-sub');
+            const laser = document.getElementById('scanner-laser-bar');
+            const pulseDot = document.getElementById('scanner-pulse-icon');
+            if (!dock || !pill || !sub) return;
+
+            dock.classList.remove('bg-emerald-50', 'border-emerald-400');
+
+            if (isFocused) {
+                dock.classList.add('scanner-box-active', 'border-indigo-300', 'bg-indigo-50/80');
+                dock.classList.remove('border-slate-200', 'bg-slate-50/80');
+                pill.className = 'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300';
+                pill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live';
+                sub.textContent = 'Laser active • Ready to scan';
+                if (laser) laser.style.display = 'block';
+                if (pulseDot) pulseDot.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>';
+            } else {
+                dock.classList.remove('scanner-box-active', 'border-indigo-300', 'bg-indigo-50/80');
+                dock.classList.add('border-slate-200', 'bg-slate-50/80');
+                pill.className = 'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700';
+                pill.innerHTML = 'Auto-Ready';
+                sub.textContent = 'Aim scanner anytime — auto-captures';
+                if (laser) laser.style.display = 'block';
+                if (pulseDot) pulseDot.innerHTML = '<span class="w-2 h-2 rounded-full bg-indigo-400"></span>';
+            }
+        };
+
+        window.handleScannerTypingPulse = () => {
+            const inp = document.getElementById('pos-barcode-scan-input');
+            if (inp && !inp.value.trim()) {
+                window.updateScannerVisualState(document.activeElement === inp);
+                return;
+            }
+            const sub = document.getElementById('scanner-status-sub');
+            const pill = document.getElementById('scanner-live-pill');
+            if (sub) sub.textContent = 'Reading barcode stream...';
+            if (pill) {
+                pill.className = 'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300';
+                pill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span> Reading';
+            }
+        };
+
+        window.flashScannerSuccess = (itemName) => {
+            const dock = document.getElementById('pos-scanner-dock');
+            const sub = document.getElementById('scanner-status-sub');
+            const pill = document.getElementById('scanner-live-pill');
+            if (dock) {
+                dock.classList.remove('bg-indigo-50/80', 'border-indigo-300');
+                dock.classList.add('bg-emerald-50', 'border-emerald-400');
+            }
+            if (pill) {
+                pill.className = 'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-emerald-600 text-white';
+                pill.innerHTML = '✓ Scanned';
+            }
+            if (sub) sub.textContent = `Added: ${itemName}`;
+            setTimeout(() => window.updateScannerVisualState(document.activeElement === document.getElementById('pos-barcode-scan-input')), 1200);
+        };
+
+        // Global Auto-Capture: Even if the user didn't click the box, fast USB/Bluetooth scanner keystrokes auto-route here!
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            const active = document.activeElement;
+            const isTypingField = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT');
+            if (isTypingField) return;
+            // Ignore when any modal is open
+            const openModal = document.querySelector('.fixed.inset-0:not(.hidden)');
+            if (openModal) return;
+
+            if (e.key && e.key.length === 1) {
+                const scanInp = document.getElementById('pos-barcode-scan-input');
+                if (scanInp) {
+                    scanInp.focus();
+                    window.updateScannerVisualState(true);
+                }
+            }
+        });
+
+        window.handleBarcodeScanSubmit = (e) => {
+            if (e && typeof e.preventDefault === 'function') e.preventDefault();
+            const inp = document.getElementById('pos-barcode-scan-input');
+            const raw = (inp?.value || '').trim();
+            if (!raw) return;
+
+            if (raw.includes('|')) {
+                const parts = raw.split('|');
+                const scannedName = parts.slice(0, -1).join(' ').trim();
+                const scannedPrice = Math.max(0, Number(parts[parts.length - 1].replace(/[^0-9.]/g, '')) || 0);
+
+                if (scannedName) {
+                    const itemKey = 'item_' + scannedName.toLowerCase().replace(/\s+/g, '_') + '_' + scannedPrice;
+                    const existing = window.state.cart.find(item => (item.id === itemKey || item.productId === itemKey) && item.price === scannedPrice);
+                    if (existing) {
+                        existing.qty += 1;
+                    } else {
+                        window.state.cart.push({
+                            id: itemKey,
+                            productId: itemKey,
+                            name: scannedName,
+                            sku: 'BARCODE',
+                            price: scannedPrice,
+                            costPrice: 0,
+                            qty: 1
+                        });
+                    }
+                    inp.value = '';
+                    inp.focus();
+                    window.renderCart();
+                    if (typeof window.playScanBeep === 'function') window.playScanBeep();
+                    window.flashScannerSuccess(scannedName);
+                    window.showToast(`Scanned: ${scannedName} (${formatINR(scannedPrice)})`, 'success');
+                    return;
+                }
+            }
+
+            window.showToast('Invalid barcode format. Expected "Item Name|Price" (e.g. Silk Kurta|1699).', 'warning');
+            inp.select();
+        };
+
+        // 1C. Phone Camera Barcode Scanner (Native BarcodeDetector + HD Video + Torch + Photo Fallback)
+        let activeCameraScanner = null;
+        let activeCameraTorchOn = false;
+        let lastCameraScanCode = '';
+        let lastCameraScanTime = 0;
+
+        window.playScanBeep = () => {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1100, ctx.currentTime);
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.12);
+            } catch (e) {}
+        };
+
+        window.getCameraScannerFormats = () => {
+            if (!window.Html5QrcodeSupportedFormats) return undefined;
+            const F = window.Html5QrcodeSupportedFormats;
+            return [F.QR_CODE, F.CODE_128, F.EAN_13, F.EAN_8, F.CODE_39, F.UPC_A, F.UPC_E];
+        };
+
+        window.handleDecodedCameraText = (decodedText) => {
+            const now = Date.now();
+            if (decodedText === lastCameraScanCode && (now - lastCameraScanTime) < 1800) {
+                return;
+            }
+            lastCameraScanCode = decodedText;
+            lastCameraScanTime = now;
+
+            window.playScanBeep();
+            const scanInp = document.getElementById('pos-barcode-scan-input');
+            if (scanInp) {
+                scanInp.value = decodedText;
+                window.handleBarcodeScanSubmit();
+            }
+
+            const statusEl = document.getElementById('camera-scanner-status');
+            if (statusEl) {
+                statusEl.className = 'text-xs text-center font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2';
+                statusEl.textContent = `Scanned: ${decodedText}`;
+            }
+
+            const keepOpen = document.getElementById('camera-continuous-mode')?.checked;
+            if (!keepOpen) {
+                window.closeCameraScannerModal();
+            }
+        };
+
+        window.openCameraScannerModal = async () => {
+            const modal = document.getElementById('camera-scanner-modal');
+            const statusEl = document.getElementById('camera-scanner-status');
+            const torchBtn = document.getElementById('camera-torch-btn');
+            if (!modal) return;
+
+            activeCameraTorchOn = false;
+            if (torchBtn) torchBtn.classList.add('hidden');
+            modal.classList.remove('hidden');
+            window.safeIcons();
+
+            if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                if (statusEl) {
+                    statusEl.className = 'text-xs text-center font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2.5';
+                    statusEl.textContent = 'Camera requires HTTPS (or localhost). Please host pos.html over HTTPS (e.g., Firebase Hosting, Netlify, or GitHub Pages) to scan with your phone camera.';
+                }
+                return;
+            }
+
+            if (typeof window.Html5Qrcode !== 'function') {
+                if (statusEl) {
+                    statusEl.className = 'text-xs text-center font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2.5';
+                    statusEl.textContent = 'Camera scanner library failed to load. Check your internet connection and reload.';
+                }
+                return;
+            }
+
+            if (statusEl) {
+                statusEl.className = 'text-xs text-center font-medium text-slate-600 bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2';
+                statusEl.textContent = 'Starting HD rear camera...';
+            }
+
+            try {
+                if (activeCameraScanner) {
+                    try { await activeCameraScanner.stop(); } catch (e) {}
+                    try { activeCameraScanner.clear(); } catch (e) {}
+                    activeCameraScanner = null;
+                }
+
+                // Pass formatsToSupport & native BarcodeDetector to the CONSTRUCTOR (required by html5-qrcode v2.3.8)
+                const constructorCfg = {
+                    verbose: false,
+                    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+                };
+                const fmts = window.getCameraScannerFormats();
+                if (fmts) constructorCfg.formatsToSupport = fmts;
+
+                activeCameraScanner = new window.Html5Qrcode('camera-scanner-reader', constructorCfg);
+
+                const scanConfig = {
+                    fps: 15,
+                    qrbox: (viewfinderWidth, viewfinderHeight) => ({
+                        width: Math.max(180, Math.floor(viewfinderWidth * 0.88)),
+                        height: Math.max(110, Math.floor(Math.min(viewfinderHeight * 0.65, 220)))
+                    }),
+                    videoConstraints: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                };
+
+                await activeCameraScanner.start(
+                    { facingMode: 'environment' },
+                    scanConfig,
+                    (decodedText) => window.handleDecodedCameraText(decodedText),
+                    () => {}
+                );
+
+                // Enable Flashlight / Torch toggle if supported by rear camera
+                try {
+                    const caps = activeCameraScanner.getRunningTrackCameraCapabilities();
+                    if (caps && caps.torchFeature && caps.torchFeature().isSupported() && torchBtn) {
+                        torchBtn.classList.remove('hidden');
+                        window.safeIcons();
+                    }
+                } catch (e) {}
+
+                if (statusEl) {
+                    statusEl.className = 'text-xs text-center font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-xl px-3 py-2';
+                    statusEl.textContent = 'Camera active — hold steady over the QR or Barcode tag';
+                }
+            } catch (err) {
+                console.warn('Camera scanner start error:', err);
+                if (statusEl) {
+                    statusEl.className = 'text-xs text-center font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2.5';
+                    statusEl.textContent = `Could not start camera: ${err?.message || err}. Allow camera permission or use "Scan Photo".`;
+                }
+            }
+        };
+
+        window.toggleCameraTorch = async () => {
+            if (!activeCameraScanner) return;
+            try {
+                activeCameraTorchOn = !activeCameraTorchOn;
+                await activeCameraScanner.applyVideoConstraints({
+                    advanced: [{ torch: activeCameraTorchOn }]
+                });
+                const btn = document.getElementById('camera-torch-btn');
+                if (btn) {
+                    btn.className = activeCameraTorchOn
+                        ? 'px-3 py-1.5 bg-amber-500 text-slate-950 border border-amber-500 text-xs font-bold rounded-xl transition inline-flex items-center gap-1.5'
+                        : 'px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold rounded-xl transition inline-flex items-center gap-1.5';
+                }
+            } catch (e) {
+                window.showToast('Flashlight not supported on this device', 'warning');
+            }
+        };
+
+        window.scanBarcodeFromFile = async (event) => {
+            const file = event?.target?.files?.[0];
+            if (!file) return;
+            const statusEl = document.getElementById('camera-scanner-status');
+            if (statusEl) statusEl.textContent = 'Reading barcode from photo...';
+
+            try {
+                // Pause live stream briefly if running, or use a temporary scanner instance
+                if (activeCameraScanner) {
+                    try { await activeCameraScanner.stop(); } catch (e) {}
+                    try { activeCameraScanner.clear(); } catch (e) {}
+                    activeCameraScanner = null;
+                }
+                const constructorCfg = {
+                    verbose: false,
+                    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+                };
+                const fmts = window.getCameraScannerFormats();
+                if (fmts) constructorCfg.formatsToSupport = fmts;
+
+                const fileScanner = new window.Html5Qrcode('camera-scanner-reader', constructorCfg);
+                const decodedText = await fileScanner.scanFile(file, true);
+                try { fileScanner.clear(); } catch (e) {}
+                window.handleDecodedCameraText(decodedText);
+            } catch (err) {
+                if (statusEl) {
+                    statusEl.className = 'text-xs text-center font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2';
+                    statusEl.textContent = 'No barcode detected in photo. Try clearer lighting or QR Code tags.';
+                }
+            } finally {
+                if (event?.target) event.target.value = '';
+            }
+        };
+
+        window.closeCameraScannerModal = async () => {
+            const modal = document.getElementById('camera-scanner-modal');
+            if (modal) modal.classList.add('hidden');
+            activeCameraTorchOn = false;
+            if (activeCameraScanner) {
+                try { await activeCameraScanner.stop(); } catch (e) {}
+                try { activeCameraScanner.clear(); } catch (e) {}
+                activeCameraScanner = null;
+            }
+        };
+
+        // 1D. Exchange Summary Panel (Loaded from Sales & Invoices)
+        window.exitExchangeMode = () => {
+            window.state.exchangeMode = false;
+            window.state.exchangeRefSaleId = '';
+            window.state.exchangeRefInvoiceNo = '';
+            window.state.exchangeItems = [];
+            localStorage.removeItem('nk_pending_exchange_v1');
+            window.renderExchangePanel();
+            window.updateCartTotals();
+        };
+
+        window.updateExchangeItemQty = (id, delta) => {
+            const it = window.state.exchangeItems.find(x => x.id === id);
+            if (!it) return;
+            it.qty += delta;
+            if (it.qty <= 0) {
+                window.state.exchangeItems = window.state.exchangeItems.filter(x => x.id !== id);
+            }
+            window.renderExchangePanel();
+        };
+
+        window.removeExchangeItem = (id) => {
+            window.state.exchangeItems = window.state.exchangeItems.filter(x => x.id !== id);
+            window.renderExchangePanel();
+        };
+
+        window.renderExchangePanel = () => {
+            const panel = document.getElementById('pos-exchange-panel');
+            const badge = document.getElementById('pos-exch-ref-badge');
+            const listEl = document.getElementById('pos-exch-items-list');
+            const totEl = document.getElementById('pos-exch-credit-total');
+            if (!panel) return;
+
+            panel.classList.toggle('hidden', !window.state.exchangeMode);
+            if (badge) {
+                badge.textContent = window.state.exchangeRefInvoiceNo
+                    ? `Original Bill: ${window.state.exchangeRefInvoiceNo}`
+                    : 'Exchange';
+            }
+
+            const totalCredit = window.state.exchangeItems.reduce((s, i) => s + ((Number(i.price) || 0) * (Number(i.qty) || 1)), 0);
+            if (totEl) totEl.textContent = formatINR(totalCredit);
+
+            if (listEl) {
+                if (window.state.exchangeItems.length === 0) {
+                    listEl.innerHTML = `<div class="text-[11px] text-amber-700/90 bg-white/70 border border-dashed border-amber-300 rounded-xl px-3 py-2 text-center">No returned items selected.</div>`;
+                } else {
+                    listEl.innerHTML = window.state.exchangeItems.map(it => `
+                        <div class="flex items-center justify-between gap-2 bg-white px-3 py-2 rounded-xl border border-amber-200 text-xs">
+                            <div class="min-w-0 flex-1">
+                                <span class="font-bold text-slate-800 truncate block">${it.name}</span>
+                                <span class="text-[10px] text-amber-700">Return Credit: ${formatINR(it.price)} &times; ${it.qty}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button type="button" onclick="window.updateExchangeItemQty('${it.id}', -1)" class="w-6 h-6 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold">-</button>
+                                <span class="w-6 text-center font-bold">${it.qty}</span>
+                                <button type="button" onclick="window.updateExchangeItemQty('${it.id}', 1)" class="w-6 h-6 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold">+</button>
+                                <button type="button" onclick="window.removeExchangeItem('${it.id}')" class="w-6 h-6 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold">&times;</button>
+                            </div>
+                            <div class="w-20 text-right font-extrabold text-emerald-700">- ${formatINR(it.price * it.qty)}</div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            window.updateCartTotals();
+            window.safeIcons();
+        };
+
+        // 2. POS & Billing Functions (Password-Free)
+        window.addPosLineItem = (e) => {
+            if (e && typeof e.preventDefault === 'function') e.preventDefault();
+            const nameInp = document.getElementById('pos-line-name');
+            const qtyInp = document.getElementById('pos-line-qty');
+            const priceInp = document.getElementById('pos-line-price');
+
+            const name = (nameInp?.value || '').trim();
+            const qty = Math.max(1, parseInt(qtyInp?.value, 10) || 1);
+            const price = Math.max(0, Number(priceInp?.value) || 0);
+
+            if (!name) {
+                window.showToast('Please enter an item name', 'warning');
+                return;
+            }
+
+            const itemKey = 'item_' + name.toLowerCase().replace(/\s+/g, '_') + '_' + price;
+
+            const existing = window.state.cart.find(item => (item.id === itemKey || item.productId === itemKey) && item.price === price);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                window.state.cart.push({
+                    id: itemKey,
+                    productId: itemKey,
+                    name,
+                    sku: 'DIRECT',
+                    price,
+                    costPrice: 0,
+                    qty
+                });
+            }
+
+            if (nameInp) {
+                nameInp.value = '';
+                nameInp.focus();
+            }
+            if (qtyInp) qtyInp.value = 1;
+            if (priceInp) priceInp.value = '';
+            window.renderCart();
+        };
+
+        window.updateCartQty = (itemId, delta) => {
+            const item = window.state.cart.find(i => i.id === itemId || i.productId === itemId);
+            if (!item) return;
+            const newQty = item.qty + delta;
+            if (newQty <= 0) {
+                window.state.cart = window.state.cart.filter(i => i.id !== itemId && i.productId !== itemId);
+            } else {
+                item.qty = newQty;
+            }
+            window.renderCart();
+        };
+
+        window.removeFromCart = (itemId) => {
+            window.state.cart = window.state.cart.filter(i => i.id !== itemId && i.productId !== itemId);
+            window.renderCart();
+            window.showToast('Item removed from bill');
+        };
+
+        // Password-free cart item editing
+        window.openEditCartItemModal = (itemId) => {
+            const item = window.state.cart.find(i => i.id === itemId || i.productId === itemId);
+            if (!item) return;
+
+            document.getElementById('editCartItemId').value = item.id || item.productId;
+            document.getElementById('editCartItemName').value = item.name || '';
+            document.getElementById('editCartItemQty').value = Number(item.qty) || 1;
+            document.getElementById('editCartItemRate').value = Number(item.price) || 0;
+            document.getElementById('editCartItemModal').classList.remove('hidden');
+            window.safeIcons();
+            setTimeout(() => document.getElementById('editCartItemName')?.focus(), 50);
+        };
+
+        window.closeEditCartItemModal = () => {
+            const modal = document.getElementById('editCartItemModal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.saveEditedCartItem = (e) => {
+            if (e && typeof e.preventDefault === 'function') e.preventDefault();
+            const targetId = document.getElementById('editCartItemId').value;
+            const newName = (document.getElementById('editCartItemName').value || '').trim();
+            const newQty = Math.max(1, parseInt(document.getElementById('editCartItemQty').value, 10) || 1);
+            const newRate = Math.max(0, Number(document.getElementById('editCartItemRate').value) || 0);
+
+            if (!newName) {
+                window.showToast('Item name cannot be empty', 'warning');
+                return;
+            }
+
+            const item = window.state.cart.find(i => i.id === targetId || i.productId === targetId);
+            if (item) {
+                item.name = newName;
+                item.qty = newQty;
+                item.price = newRate;
+            }
+
+            window.closeEditCartItemModal();
+            window.renderCart();
+            window.showToast('Bill item updated!');
+        };
+
+        window.updatePosBillDateLabel = () => {
+            const bDate = document.getElementById('pos-bill-date');
+            if (bDate) bDate.title = 'Bill Date: ' + window.formatDisplayDate(bDate.value || window.getLocalTodayYMD());
+        };
+
+        window.clearCart = () => {
+            window.state.cart = [];
+            window.state.exchangeMode = false;
+            window.state.exchangeRefSaleId = '';
+            window.state.exchangeRefInvoiceNo = '';
+            window.state.exchangeItems = [];
+            localStorage.removeItem('nk_pending_exchange_v1');
+            const exchPanel = document.getElementById('pos-exchange-panel');
+            if (exchPanel) exchPanel.classList.add('hidden');
+            const dVal = document.getElementById('posDiscount');
+            const cName = document.getElementById('pos-customer-name');
+            const cPhone = document.getElementById('pos-customer-phone');
+            const sCash = document.getElementById('pos-split-cash');
+            const sOnl = document.getElementById('pos-split-online');
+            const aCash = document.getElementById('pos-adv-cash');
+            const aOnl = document.getElementById('pos-adv-online');
+            const aRem = document.getElementById('pos-adv-remaining');
+            if (dVal) dVal.value = '';
+            if (cName) cName.value = '';
+            if (cPhone) cPhone.value = '';
+            if (sCash) sCash.value = '';
+            if (sOnl) sOnl.value = '';
+            if (aCash) aCash.value = '';
+            if (aOnl) aOnl.value = '';
+            if (aRem) aRem.value = '0';
+            const bDate = document.getElementById('pos-bill-date');
+            if (bDate) bDate.value = window.getLocalTodayYMD();
+            window.setPOSPaymentMode('Cash');
+            window.renderCart();
+        };
+
+        window.setPOSPaymentMode = (mode) => {
+            window.state.posPaymentMode = mode;
+            document.querySelectorAll('.pos-pay-btn').forEach(btn => {
+                btn.className = 'pos-pay-btn py-2 px-3 rounded-xl text-xs font-semibold border bg-white text-slate-700 border-slate-200 hover:bg-slate-100 transition';
+            });
+            const active = document.getElementById(`pay-mode-${mode}`);
+            if (active) {
+                active.className = 'pos-pay-btn py-2 px-3 rounded-xl text-xs font-semibold border bg-brand-600 text-white border-brand-600 transition';
+            }
+            const splitBox = document.getElementById('pos-split-box');
+            if (splitBox) {
+                if (mode === 'Split') {
+                    splitBox.classList.remove('hidden');
+                    const { grandTotal } = window.updateCartTotals();
+                    const cashInp = document.getElementById('pos-split-cash');
+                    const onlInp = document.getElementById('pos-split-online');
+                    if (cashInp && onlInp) {
+                        const curCash = Number(cashInp.value) || 0;
+                        const curOnl = Number(onlInp.value) || 0;
+                        if (curCash + curOnl !== grandTotal) {
+                            const half = Math.floor(grandTotal / 2);
+                            cashInp.value = half > 0 ? half : 0;
+                            onlInp.value = Math.max(0, grandTotal - half);
+                        }
+                    }
+                    window.safeIcons();
+                } else {
+                    splitBox.classList.add('hidden');
+                }
+            }
+            const advBox = document.getElementById('pos-advance-box');
+            if (advBox) {
+                if (mode === 'Advance') {
+                    advBox.classList.remove('hidden');
+                    window.handlePosAdvanceInput();
+                    window.safeIcons();
+                } else {
+                    advBox.classList.add('hidden');
+                }
+            }
+        };
+
+        window.handlePosAdvanceInput = () => {
+            const subtotal = window.state.cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const discVal = Math.max(0, Number(document.getElementById('posDiscount')?.value) || 0);
+            const discType = document.getElementById('pos-discount-type')?.value || 'FLAT';
+            let discountAmount = discType === 'PERCENT' ? Math.round((subtotal * Math.min(100, discVal)) / 100) : discVal;
+            const exchangeCredit = window.state.exchangeMode
+                ? window.state.exchangeItems.reduce((sum, i) => sum + ((Number(i.price) || 0) * (Number(i.qty) || 1)), 0)
+                : 0;
+            const grandTotal = Math.max(0, Math.max(0, subtotal - Math.min(subtotal, discountAmount)) - exchangeCredit);
+
+            const cInp = document.getElementById('pos-adv-cash');
+            const oInp = document.getElementById('pos-adv-online');
+            const rInp = document.getElementById('pos-adv-remaining');
+            if (!cInp || !oInp || !rInp) return;
+
+            let c = Math.max(0, Number(cInp.value) || 0);
+            let o = Math.max(0, Number(oInp.value) || 0);
+            if (c + o > grandTotal) {
+                if (document.activeElement === cInp) {
+                    c = Math.max(0, grandTotal - o);
+                    cInp.value = c;
+                } else {
+                    o = Math.max(0, grandTotal - c);
+                    oInp.value = o;
+                }
+            }
+            rInp.value = Math.max(0, grandTotal - (c + o));
+        };
+
+        window.handlePosSplitInput = (changedField) => {
+            const subtotal = window.state.cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const discVal = Math.max(0, Number(document.getElementById('posDiscount')?.value) || 0);
+            const discType = document.getElementById('pos-discount-type')?.value || 'FLAT';
+            let discountAmount = discType === 'PERCENT' ? Math.round((subtotal * Math.min(100, discVal)) / 100) : discVal;
+            const exchangeCredit = window.state.exchangeMode
+                ? window.state.exchangeItems.reduce((sum, i) => sum + ((Number(i.price) || 0) * (Number(i.qty) || 1)), 0)
+                : 0;
+            const grandTotal = Math.max(0, Math.max(0, subtotal - Math.min(subtotal, discountAmount)) - exchangeCredit);
+
+            const cashInp = document.getElementById('pos-split-cash');
+            const onlInp = document.getElementById('pos-split-online');
+            if (!cashInp || !onlInp) return;
+
+            if (changedField === 'cash') {
+                let c = Math.max(0, Number(cashInp.value) || 0);
+                if (c > grandTotal) { c = grandTotal; cashInp.value = c; }
+                onlInp.value = Math.max(0, grandTotal - c);
+            } else {
+                let o = Math.max(0, Number(onlInp.value) || 0);
+                if (o > grandTotal) { o = grandTotal; onlInp.value = o; }
+                cashInp.value = Math.max(0, grandTotal - o);
+            }
+        };
+
+        window.renderCart = () => {
+            const container = document.getElementById('pos-cart-items');
+            if (!container) return;
+
+            if (window.state.cart.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-slate-400 py-4">
+                        <i data-lucide="shopping-cart" class="w-9 h-9 mb-2 stroke-1"></i>
+                        <p class="text-xs font-medium">Your bill is empty — enter an item above to start billing</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = window.state.cart.map(c => {
+                    const cid = c.id || c.productId;
+                    return `
+                    <div class="py-2 px-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 bg-white rounded-xl mb-1 border border-slate-200/70 shadow-2xs">
+                        <div class="min-w-0 flex-1">
+                            <div class="text-xs md:text-sm font-bold text-slate-800 truncate">${c.name}</div>
+                            <div class="text-[11px] text-slate-400">Rate: ${formatINR(c.price)} &times; ${c.qty}</div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="window.openEditCartItemModal('${cid}')" title="Edit Item Name, Qty or Rate" class="px-2.5 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700 font-semibold text-xs flex items-center gap-1 transition">
+                                <i data-lucide="pen-line" class="w-3.5 h-3.5"></i>
+                                <span>Edit</span>
+                            </button>
+                            <button type="button" onclick="window.updateCartQty('${cid}', -1)" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">-</button>
+                            <span class="w-7 text-center text-xs md:text-sm font-bold">${c.qty}</span>
+                            <button type="button" onclick="window.updateCartQty('${cid}', 1)" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">+</button>
+                            <button type="button" onclick="window.removeFromCart('${cid}')" title="Remove Item" class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-sm flex items-center justify-center">&times;</button>
+                        </div>
+                        <div class="w-24 text-right text-xs md:text-sm font-extrabold text-slate-900">
+                            ${formatINR(c.price * c.qty)}
+                        </div>
+                    </div>
+                `}).join('');
+            }
+            window.updateCartTotals();
+            window.safeIcons();
+        };
+
+        window.updateCartTotals = () => {
+            const subtotal = window.state.cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const discInput = document.getElementById('posDiscount');
+            let discVal = Math.max(0, Number(discInput?.value) || 0);
+            const discType = document.getElementById('pos-discount-type')?.value || 'FLAT';
+
+            if (discType === 'PERCENT' && discVal > 100) {
+                discVal = 100;
+                if (discInput) discInput.value = 100;
+            }
+
+            let discountAmount = discType === 'PERCENT' ? Math.round((subtotal * discVal) / 100) : discVal;
+            if (discountAmount > subtotal) discountAmount = subtotal;
+
+            const exchangeCredit = window.state.exchangeMode
+                ? window.state.exchangeItems.reduce((sum, i) => sum + ((Number(i.price) || 0) * (Number(i.qty) || 1)), 0)
+                : 0;
+            const netBeforeCredit = Math.max(0, subtotal - discountAmount);
+            const grandTotal = Math.max(0, netBeforeCredit - exchangeCredit);
+            const exchangeBalanceDue = Math.max(0, exchangeCredit - netBeforeCredit);
+
+            const subEl = document.getElementById('pos-subtotal');
+            const discEl = document.getElementById('pos-discount-display');
+            const totalEl = document.getElementById('pos-grand-total');
+            const exchRow = document.getElementById('pos-exch-credit-row');
+            const exchDisp = document.getElementById('pos-exch-credit-display');
+            const balRow = document.getElementById('pos-exch-balance-row');
+            const balDisp = document.getElementById('pos-exch-balance-display');
+
+            if (subEl) subEl.textContent = formatINR(subtotal);
+            if (discEl) discEl.textContent = `- ${formatINR(discountAmount)}`;
+            if (exchRow) exchRow.classList.toggle('hidden', exchangeCredit <= 0);
+            if (exchDisp) exchDisp.textContent = `- ${formatINR(exchangeCredit)}`;
+            if (balRow) balRow.classList.toggle('hidden', exchangeBalanceDue <= 0);
+            if (balDisp) balDisp.textContent = formatINR(exchangeBalanceDue);
+            if (totalEl) totalEl.textContent = formatINR(grandTotal);
+
+            if (window.state.posPaymentMode === 'Split') {
+                const cashInp = document.getElementById('pos-split-cash');
+                const onlInp = document.getElementById('pos-split-online');
+                if (cashInp && onlInp && document.activeElement !== cashInp && document.activeElement !== onlInp) {
+                    let c = Math.max(0, Number(cashInp.value) || 0);
+                    if (c > grandTotal) c = grandTotal;
+                    cashInp.value = c;
+                    onlInp.value = Math.max(0, grandTotal - c);
+                }
+            } else if (window.state.posPaymentMode === 'Advance') {
+                const cInp = document.getElementById('pos-adv-cash');
+                const oInp = document.getElementById('pos-adv-online');
+                const rInp = document.getElementById('pos-adv-remaining');
+                if (cInp && oInp && rInp) {
+                    const c = Math.max(0, Number(cInp.value) || 0);
+                    const o = Math.max(0, Number(oInp.value) || 0);
+                    rInp.value = Math.max(0, grandTotal - (c + o));
+                }
+            }
+            return { subtotal, discountAmount, grandTotal, discVal, discType, exchangeCredit, exchangeBalanceDue };
+        };
+
+        window.completeSale = async () => {
+            if (window.state.cart.length === 0) {
+                window.showToast('Add at least one item to complete a sale!', 'error');
+                return;
+            }
+
+            const { subtotal, discountAmount, grandTotal, discVal, discType, exchangeCredit, exchangeBalanceDue } = window.updateCartTotals();
+            const customerName = document.getElementById('pos-customer-name').value.trim() || 'Walk-in Customer';
+            const customerPhone = document.getElementById('pos-customer-phone').value.trim() || '';
+            const isExchangeBill = Boolean(window.state.exchangeMode && exchangeCredit > 0);
+            const paymentMode = (isExchangeBill && grandTotal === 0) ? 'Exchange' : window.state.posPaymentMode;
+
+            if ((paymentMode === 'Udhaar' || paymentMode === 'Advance') && customerName === 'Walk-in Customer') {
+                window.showToast('Please enter Customer Name for Advance / Udhaar sale!', 'warning');
+                document.getElementById('pos-customer-name').focus();
+                return;
+            }
+
+            let cashAmount = paymentMode === 'Cash' ? grandTotal : 0;
+            let onlineAmount = (paymentMode === 'UPI' || paymentMode === 'Card') ? grandTotal : 0;
+            let advancePaid = (paymentMode === 'Udhaar') ? 0 : grandTotal;
+            let remainingAmount = (paymentMode === 'Udhaar') ? grandTotal : 0;
+
+            if (paymentMode === 'Split') {
+                cashAmount = Math.max(0, Number(document.getElementById('pos-split-cash')?.value) || 0);
+                onlineAmount = Math.max(0, Number(document.getElementById('pos-split-online')?.value) || 0);
+                if (Math.round(cashAmount + onlineAmount) !== Math.round(grandTotal)) {
+                    window.showToast(`Split amounts (₹${cashAmount} + ₹${onlineAmount}) must equal Grand Total (₹${grandTotal})!`, 'error');
+                    return;
+                }
+                advancePaid = grandTotal;
+                remainingAmount = 0;
+            } else if (paymentMode === 'Advance') {
+                cashAmount = Math.max(0, Number(document.getElementById('pos-adv-cash')?.value) || 0);
+                onlineAmount = Math.max(0, Number(document.getElementById('pos-adv-online')?.value) || 0);
+                advancePaid = cashAmount + onlineAmount;
+                remainingAmount = Math.max(0, grandTotal - advancePaid);
+                if (advancePaid <= 0) {
+                    window.showToast('Please enter Advance Paid amount (or choose Full Udhaar)!', 'warning');
+                    return;
+                }
+                if (remainingAmount <= 0) {
+                    window.showToast('Remaining balance is ₹0 — use Cash, Online, or Split for full payment!', 'warning');
+                    return;
+                }
+            }
+
+            const now = new Date();
+            const invoiceNo = 'INV-' + String(now.getTime()).slice(-5);
+            const saleDoc = {
+                id: 'sale_' + now.getTime(),
+                docType: 'sale',
+                recordType: 'sale',
+                invoiceNo,
+                customerName,
+                customerPhone,
+                paymentMode,
+                cashAmount,
+                onlineAmount,
+                advancePaid,
+                remainingAmount,
+                subtotal,
+                discountAmount,
+                discountRaw: discVal || 0,
+                discountType: discType === 'PERCENT' ? 'percent' : 'flat',
+                grandTotal,
+                status: 'Completed',
+                isExchange: isExchangeBill,
+                exchangeRefSaleId: isExchangeBill ? (window.state.exchangeRefSaleId || '') : '',
+                exchangeRefInvoiceNo: isExchangeBill ? (window.state.exchangeRefInvoiceNo || '') : '',
+                exchangeCredit: isExchangeBill ? exchangeCredit : 0,
+                exchangeBalanceDue: isExchangeBill ? exchangeBalanceDue : 0,
+                returnedItems: isExchangeBill ? JSON.stringify(window.state.exchangeItems) : '[]',
+                items: JSON.stringify(window.state.cart),
+                dateStr: (document.getElementById('pos-bill-date')?.value || window.getLocalTodayYMD()),
+                timestamp: now.getTime(),
+                updatedAt: now.toISOString()
+            };
+
+            const udhDoc = (paymentMode === 'Udhaar' || (paymentMode === 'Advance' && remainingAmount > 0)) ? {
+                id: 'udh_' + now.getTime(),
+                docType: 'udhaar',
+                recordType: 'udhaar',
+                saleId: saleDoc.id,
+                linkedSaleId: saleDoc.id,
+                partyName: customerName,
+                phone: customerPhone,
+                type: 'Customer Receivable',
+                amount: paymentMode === 'Advance' ? remainingAmount : grandTotal,
+                notes: paymentMode === 'Advance'
+                    ? `Bill ${invoiceNo} (Total: ₹${grandTotal}, Advance Paid: ₹${advancePaid})`
+                    : `Credit Bill ${invoiceNo}`,
+                status: 'Pending',
+                dateStr: saleDoc.dateStr,
+                timestamp: now.getTime(),
+                updatedAt: now.toISOString()
+            } : null;
+
+            await window.saveDocument('sales', saleDoc);
+            if (udhDoc) await window.saveDocument('udhaar', udhDoc);
+
+            // Link original invoice as Exchanged so it cannot be exchanged twice
+            if (isExchangeBill && window.state.exchangeRefSaleId) {
+                const origSale = window.state.sales.find(s => s.id === window.state.exchangeRefSaleId);
+                if (origSale) {
+                    await window.saveDocument('sales', {
+                        ...origSale,
+                        exchangedToInvoice: invoiceNo,
+                        updatedAt: now.toISOString()
+                    });
+                }
+            }
+
+            window.clearCart();
+            window.refreshAllViews();
+            window.viewInvoice(saleDoc.id, saleDoc);
+            window.showToast(`Sale ${invoiceNo} saved!`, 'success');
+        };
+
+
+        // 4. Receipt / Invoice Viewer & Formatted Thermal Printer
+        window.viewInvoice = (saleId, fallbackSaleObj = null) => {
+            const s = window.state.sales.find(item => item.id === saleId) || fallbackSaleObj;
+            if (!s) return;
+            window.state.activeReceiptSale = s;
+
+            let items = [];
+            try { items = typeof s.items === 'string' ? JSON.parse(s.items) : (s.items || []); } catch(e) {}
+
+            document.getElementById('rcpt-shop-title').textContent = window.state.shopName;
+            document.getElementById('rcpt-shop-sub').textContent = window.state.shopSub;
+            const gstEl = document.getElementById('rcpt-shop-gst');
+            if (gstEl) gstEl.textContent = window.state.shopGst;
+            document.getElementById('rcpt-invoice-no').textContent = s.invoiceNo;
+            document.getElementById('rcpt-customer').textContent = s.customerName;
+            document.getElementById('rcpt-phone').textContent = s.customerPhone || '';
+            document.getElementById('rcpt-date').textContent = window.formatDisplayDate(s.dateStr, s.timestamp);
+            const advPaidVal = s.advancePaid !== undefined ? Number(s.advancePaid) : ((Number(s.cashAmount) || 0) + (Number(s.onlineAmount) || 0));
+            const remDueVal = s.remainingAmount !== undefined ? Number(s.remainingAmount) : (s.paymentMode === 'Advance' ? Math.max(0, (Number(s.grandTotal) || 0) - advPaidVal) : 0);
+            document.getElementById('rcpt-mode').textContent = `Paid via ${window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount, remDueVal)}`;
+
+            document.getElementById('rcpt-items-body').innerHTML = items.map(it => `
+                <tr>
+                    <td class="py-1.5 font-medium text-slate-800">${it.name}</td>
+                    <td class="py-1.5 text-center">${it.qty}</td>
+                    <td class="py-1.5 text-right">${formatINR(it.price)}</td>
+                    <td class="py-1.5 text-right font-semibold">${formatINR(it.price * it.qty)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('rcpt-subtotal').textContent = formatINR(s.subtotal);
+            document.getElementById('rcpt-discount').textContent = `- ${formatINR(s.discountAmount || 0)}`;
+            const exchRow = document.getElementById('rcpt-exchange-row');
+            const exchCreditVal = Number(s.exchangeCredit) || 0;
+            if (exchRow) {
+                if (exchCreditVal > 0) {
+                    exchRow.classList.remove('hidden');
+                    const exchLbl = document.getElementById('rcpt-exchange-label');
+                    if (exchLbl) exchLbl.textContent = s.exchangeRefInvoiceNo ? `Exchange Credit (${s.exchangeRefInvoiceNo})` : 'Exchange Credit';
+                    const exchAmt = document.getElementById('rcpt-exchange-credit');
+                    if (exchAmt) exchAmt.textContent = `- ${formatINR(exchCreditVal)}`;
+                } else {
+                    exchRow.classList.add('hidden');
+                }
+            }
+            document.getElementById('rcpt-total').textContent = formatINR(s.grandTotal);
+
+            const advRows = document.getElementById('rcpt-advance-rows');
+            if (advRows) {
+                if (s.paymentMode === 'Advance' || remDueVal > 0) {
+                    advRows.classList.remove('hidden');
+                    const pParts = [];
+                    if (Number(s.cashAmount) > 0) pParts.push(`Cash: ${formatINR(s.cashAmount)}`);
+                    if (Number(s.onlineAmount) > 0) pParts.push(`Online: ${formatINR(s.onlineAmount)}`);
+                    const pSub = pParts.length > 0 ? ` (${pParts.join(' + ')})` : '';
+                    document.getElementById('rcpt-advance-paid').textContent = `${formatINR(advPaidVal)}${pSub}`;
+                    document.getElementById('rcpt-balance-due').textContent = formatINR(remDueVal);
+                } else {
+                    advRows.classList.add('hidden');
+                }
+            }
+
+            const savedRcptSize = localStorage.getItem('nk_rcpt_print_size');
+            const rcptSizeSel = document.getElementById('rcpt-print-size');
+            if (savedRcptSize && rcptSizeSel && Array.from(rcptSizeSel.options).some(o => o.value === savedRcptSize)) {
+                rcptSizeSel.value = savedRcptSize;
+            }
+            document.getElementById('receipt-modal').classList.remove('hidden');
+            window.safeIcons();
+        };
+
+        window.printFormattedReceipt = () => {
+            const s = window.state.activeReceiptSale;
+            if (!s) {
+                window.print();
+                return;
+            }
+            const sizeMode = document.getElementById('rcpt-print-size')?.value || '58mm';
+            let items = [];
+            try { items = typeof s.items === 'string' ? JSON.parse(s.items) : (s.items || []); } catch (e) {}
+
+            const advPaidVal = s.advancePaid !== undefined ? Number(s.advancePaid) : ((Number(s.cashAmount) || 0) + (Number(s.onlineAmount) || 0));
+            const remDueVal = s.remainingAmount !== undefined ? Number(s.remainingAmount) : (s.paymentMode === 'Advance' ? Math.max(0, (Number(s.grandTotal) || 0) - advPaidVal) : 0);
+            const hasAdvance = (s.paymentMode === 'Advance' || remDueVal > 0);
+            const payLabel = window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount, remDueVal);
+
+            const esc = (v) => String(v ?? '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const itemsRowsHtml = items.map(it => `
+                <tr>
+                    <td class="col-item">${esc(it.name)}</td>
+                    <td class="col-qty">${it.qty}</td>
+                    <td class="col-rate">${formatINR(it.price)}</td>
+                    <td class="col-amt">${formatINR(it.price * it.qty)}</td>
+                </tr>
+            `).join('');
+
+            const cssByMode = {
+                '58mm': `
+                    @page { size: 58mm auto; margin: 0; }
+                    html, body { margin: 0; padding: 0; width: 54mm; font-family: Arial, Helvetica, sans-serif; color: #000; background: #fff; font-size: 8.5pt; line-height: 1.25; }
+                    .wrap { width: 52mm; padding: 2mm 1.5mm; box-sizing: border-box; }
+                    .title { font-size: 11pt; font-weight: 900; margin: 0; letter-spacing: 0.3px; }
+                    .sub { font-size: 7pt; margin: 1px 0; }
+                    .inv-badge { display: inline-block; margin-top: 3px; font-family: monospace; font-size: 8pt; font-weight: 800; border: 1px solid #000; padding: 1px 5px; }
+                    .sep { border-top: 1px dashed #000; margin: 5px 0; }
+                    .meta { font-size: 7.5pt; }
+                    .meta-row { display: flex; justify-content: space-between; gap: 4px; }
+                    table { width: 100%; border-collapse: collapse; font-size: 7.5pt; margin: 3px 0; }
+                    th { border-bottom: 1px solid #000; padding: 2px 0; font-weight: 800; text-transform: uppercase; font-size: 7pt; }
+                    td { padding: 2.5px 0; vertical-align: top; }
+                    .col-item { text-align: left; padding-right: 3px; word-break: break-word; }
+                    .col-qty { text-align: center; white-space: nowrap; width: 14%; }
+                    .col-rate { text-align: right; white-space: nowrap; width: 22%; }
+                    .col-amt { text-align: right; font-weight: 700; white-space: nowrap; width: 24%; }
+                    .tot-row { display: flex; justify-content: space-between; font-size: 8pt; margin: 2px 0; }
+                    .grand { font-size: 10.5pt; font-weight: 900; border-top: 1px solid #000; padding-top: 3px; margin-top: 3px; }
+                    .foot { text-align: center; font-size: 7pt; margin-top: 6px; }
+                `,
+                '80mm': `
+                    @page { size: 80mm auto; margin: 0; }
+                    html, body { margin: 0; padding: 0; width: 76mm; font-family: Arial, Helvetica, sans-serif; color: #000; background: #fff; font-size: 9.5pt; line-height: 1.3; }
+                    .wrap { width: 74mm; padding: 3mm 2.5mm; box-sizing: border-box; }
+                    .title { font-size: 13pt; font-weight: 900; margin: 0; }
+                    .sub { font-size: 8pt; margin: 2px 0; }
+                    .inv-badge { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 9pt; font-weight: 800; border: 1px solid #000; padding: 2px 6px; }
+                    .sep { border-top: 1px dashed #000; margin: 6px 0; }
+                    .meta { font-size: 8.5pt; }
+                    .meta-row { display: flex; justify-content: space-between; gap: 6px; }
+                    table { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin: 4px 0; }
+                    th { border-bottom: 1px solid #000; padding: 3px 0; font-weight: 800; text-transform: uppercase; font-size: 8pt; }
+                    td { padding: 3px 0; vertical-align: top; }
+                    .col-item { text-align: left; padding-right: 4px; }
+                    .col-qty { text-align: center; width: 12%; }
+                    .col-rate { text-align: right; width: 22%; }
+                    .col-amt { text-align: right; font-weight: 700; width: 24%; }
+                    .tot-row { display: flex; justify-content: space-between; font-size: 9pt; margin: 2.5px 0; }
+                    .grand { font-size: 12pt; font-weight: 900; border-top: 1px solid #000; padding-top: 4px; margin-top: 4px; }
+                    .foot { text-align: center; font-size: 8pt; margin-top: 8px; }
+                `,
+                'A5': `
+                    @page { size: A5; margin: 10mm; }
+                    html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; color: #0f172a; background: #fff; font-size: 10pt; line-height: 1.4; }
+                    .wrap { width: 100%; }
+                    .title { font-size: 16pt; font-weight: 800; margin: 0; }
+                    .sub { font-size: 9pt; color: #475569; margin: 2px 0; }
+                    .inv-badge { display: inline-block; margin-top: 6px; font-family: monospace; font-size: 10pt; font-weight: 700; background: #f1f5f9; padding: 2px 8px; border-radius: 4px; }
+                    .sep { border-top: 1px dashed #cbd5e1; margin: 10px 0; }
+                    .meta { font-size: 9.5pt; }
+                    .meta-row { display: flex; justify-content: space-between; }
+                    table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 8px 0; }
+                    th { border-bottom: 1.5px solid #cbd5e1; padding: 5px 0; font-weight: 700; text-transform: uppercase; font-size: 8.5pt; color: #64748b; }
+                    td { padding: 5px 0; border-bottom: 1px solid #f1f5f9; }
+                    .col-item { text-align: left; }
+                    .col-qty { text-align: center; }
+                    .col-rate { text-align: right; }
+                    .col-amt { text-align: right; font-weight: 700; }
+                    .tot-row { display: flex; justify-content: space-between; font-size: 10pt; margin: 3px 0; }
+                    .grand { font-size: 13pt; font-weight: 800; border-top: 1.5px solid #0f172a; padding-top: 6px; margin-top: 6px; }
+                    .foot { text-align: center; font-size: 9pt; color: #64748b; margin-top: 14px; }
+                `,
+                'A4': `
+                    @page { size: A4; margin: 14mm; }
+                    html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; color: #0f172a; background: #fff; font-size: 11pt; line-height: 1.45; }
+                    .wrap { max-width: 180mm; margin: 0 auto; }
+                    .title { font-size: 20pt; font-weight: 800; margin: 0; }
+                    .sub { font-size: 10pt; color: #475569; margin: 2px 0; }
+                    .inv-badge { display: inline-block; margin-top: 8px; font-family: monospace; font-size: 11pt; font-weight: 700; background: #f1f5f9; padding: 3px 10px; border-radius: 4px; }
+                    .sep { border-top: 1px dashed #cbd5e1; margin: 14px 0; }
+                    .meta { font-size: 10.5pt; }
+                    .meta-row { display: flex; justify-content: space-between; }
+                    table { width: 100%; border-collapse: collapse; font-size: 10.5pt; margin: 10px 0; }
+                    th { border-bottom: 2px solid #cbd5e1; padding: 6px 0; font-weight: 700; text-transform: uppercase; font-size: 9.5pt; color: #64748b; }
+                    td { padding: 7px 0; border-bottom: 1px solid #f1f5f9; }
+                    .col-item { text-align: left; }
+                    .col-qty { text-align: center; }
+                    .col-rate { text-align: right; }
+                    .col-amt { text-align: right; font-weight: 700; }
+                    .tot-row { display: flex; justify-content: space-between; font-size: 11pt; margin: 4px 0; }
+                    .grand { font-size: 15pt; font-weight: 800; border-top: 2px solid #0f172a; padding-top: 8px; margin-top: 8px; }
+                    .foot { text-align: center; font-size: 10pt; color: #64748b; margin-top: 18px; }
+                `
+            };
+
+            const printWin = window.open('', '_blank');
+            if (!printWin) {
+                window.showToast('Pop-up blocked! Please allow pop-ups to print receipt.', 'error');
+                return;
+            }
+
+            printWin.document.write(`<!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Receipt ${esc(s.invoiceNo)} (${sizeMode})</title>
+                    <style>${cssByMode[sizeMode] || cssByMode['58mm']}</style>
+                </head>
+                <body>
+                    <div class="wrap">
+                        <div style="text-align:center;">
+                            <h2 class="title">${esc(window.state.shopName)}</h2>
+                            <div class="sub">${esc(window.state.shopSub)}</div>
+                            ${window.state.shopGst ? `<div class="sub">${esc(window.state.shopGst)}</div>` : ''}
+                            <div class="inv-badge">${esc(s.invoiceNo)}</div>
+                        </div>
+                        <div class="sep"></div>
+                        <div class="meta">
+                            <div class="meta-row"><span><strong>To:</strong> ${esc(s.customerName)}</span><span><strong>Date:</strong> ${esc(window.formatDisplayDate(s.dateStr, s.timestamp))}</span></div>
+                            ${s.customerPhone ? `<div class="meta-row"><span>Ph: ${esc(s.customerPhone)}</span></div>` : ''}
+                            <div class="meta-row"><span><strong>Pay:</strong> ${esc(payLabel)}</span></div>
+                        </div>
+                        <div class="sep"></div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="col-item">Item</th>
+                                    <th class="col-qty">Qty</th>
+                                    <th class="col-rate">Rate</th>
+                                    <th class="col-amt">Amt</th>
+                                </tr>
+                            </thead>
+                            <tbody>${itemsRowsHtml}</tbody>
+                        </table>
+                        <div class="sep"></div>
+                        <div class="tot-row"><span>Subtotal</span><span>${formatINR(s.subtotal)}</span></div>
+                        ${Number(s.discountAmount) > 0 ? `<div class="tot-row"><span>Discount</span><span>- ${formatINR(s.discountAmount)}</span></div>` : ''}
+                        ${Number(s.exchangeCredit) > 0 ? `<div class="tot-row" style="font-weight:700;"><span>Exchange Credit${s.exchangeRefInvoiceNo ? ' (' + esc(s.exchangeRefInvoiceNo) + ')' : ''}</span><span>- ${formatINR(s.exchangeCredit)}</span></div>` : ''}
+                        <div class="tot-row grand"><span>${Number(s.exchangeCredit) > 0 ? 'NET PAYABLE' : 'GRAND TOTAL'}</span><span>${formatINR(s.grandTotal)}</span></div>
+                        ${Number(s.exchangeBalanceDue) > 0 ? `<div class="tot-row" style="font-weight:800;"><span>Balance / Store Credit</span><span>${formatINR(s.exchangeBalanceDue)}</span></div>` : ''}
+                        ${hasAdvance ? `
+                            <div class="sep"></div>
+                            <div class="tot-row"><span>Advance Paid</span><span>${formatINR(advPaidVal)}</span></div>
+                            <div class="tot-row" style="font-weight:800;"><span>Balance Due</span><span>${formatINR(remDueVal)}</span></div>
+                        ` : ''}
+                        <div class="sep"></div>
+                        <div class="foot">Thank you for shopping at ${esc(window.state.shopName)}!</div>
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() { window.print(); }, 200);
+                        };
+                    <\/script>
+                </body>
+                </html>`);
+            printWin.document.close();
+        };
+
+        window.closeReceiptModal = () => {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        };
+
+        window.shareReceiptWhatsApp = () => {
+            const s = window.state.activeReceiptSale;
+            if (!s) return;
+            let items = [];
+            try { items = typeof s.items === 'string' ? JSON.parse(s.items) : (s.items || []); } catch(e) {}
+            const lines = items.map(i => `• ${i.name} (x${i.qty}) - ₹${i.price * i.qty}`).join('%0A');
+            const advPaidW = s.advancePaid !== undefined ? Number(s.advancePaid) : ((Number(s.cashAmount) || 0) + (Number(s.onlineAmount) || 0));
+            const remDueW = s.remainingAmount !== undefined ? Number(s.remainingAmount) : (s.paymentMode === 'Advance' ? Math.max(0, (Number(s.grandTotal) || 0) - advPaidW) : 0);
+            const advLine = (s.paymentMode === 'Advance' || remDueW > 0)
+                ? `%0A*Advance Paid: ₹${advPaidW}*%0A*Remaining Balance Due: ₹${remDueW}*`
+                : '';
+            const exchLine = Number(s.exchangeCredit) > 0
+                ? `%0A*Less Exchange Credit${s.exchangeRefInvoiceNo ? ' (' + s.exchangeRefInvoiceNo + ')' : ''}: -₹${s.exchangeCredit}*${Number(s.exchangeBalanceDue) > 0 ? '%0A*Balance / Store Credit: ₹' + s.exchangeBalanceDue + '*' : ''}`
+                : '';
+            const text = `*${window.state.shopName}*%0AInvoice: ${s.invoiceNo}%0ADate: ${window.formatDisplayDate(s.dateStr, s.timestamp)}%0ACustomer: ${s.customerName}%0A----------------%0A${lines}%0A----------------%0A${exchLine ? 'Subtotal: ₹' + s.subtotal + exchLine + '%0A' : ''}*Net Total: ₹${s.grandTotal}* (${window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount, remDueW)})${advLine}%0AThank you for shopping with us!`;
+            const digits = (s.customerPhone || '').replace(/\D/g, '');
+            const url = digits.length >= 10 ? `https://wa.me/91${digits.slice(-10)}?text=${text}` : `https://wa.me/?text=${text}`;
+            window.open(url, '_blank');
+        };
+
+        window.onPageRefresh = () => {
+            window.renderCart();
+        };
+
+        window.onPageInit = () => {
+            const bDateInit = document.getElementById('pos-bill-date');
+            if (bDateInit) {
+                bDateInit.value = window.getLocalTodayYMD();
+                window.updatePosBillDateLabel();
+            }
+            try {
+                const pendingExchRaw = localStorage.getItem('nk_pending_exchange_v1');
+                if (pendingExchRaw) {
+                    const ex = JSON.parse(pendingExchRaw);
+                    localStorage.removeItem('nk_pending_exchange_v1');
+                    window.state.exchangeMode = true;
+                    window.state.exchangeRefSaleId = ex.saleId || '';
+                    window.state.exchangeRefInvoiceNo = ex.invoiceNo || '';
+                    window.state.exchangeItems = Array.isArray(ex.returnedItems) ? ex.returnedItems : [];
+                    const cNameEl = document.getElementById('pos-customer-name');
+                    const cPhoneEl = document.getElementById('pos-customer-phone');
+                    if (cNameEl && ex.customerName && ex.customerName !== 'Walk-in Customer') cNameEl.value = ex.customerName;
+                    if (cPhoneEl && ex.customerPhone) cPhoneEl.value = ex.customerPhone;
+                    window.renderExchangePanel();
+                    window.showToast(`Exchange loaded from ${ex.invoiceNo || 'Invoice'}! Scan or add replacement item(s).`, 'success');
+                }
+            } catch (err) {
+                console.warn('Pending exchange load warning:', err);
+            }
+            const scanInp = document.getElementById('pos-barcode-scan-input');
+            if (scanInp) {
+                scanInp.focus();
+                window.updateScannerVisualState(true);
+            }
+        };
+    </script>
+    <script type="module" src="shared.js"></script>
+</body>
+</html>
