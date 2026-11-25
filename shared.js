@@ -327,7 +327,6 @@ const LOCAL_CACHE_KEY = 'nawab_kurta_live_cache_v2';
                     }
                     if (inpEl) inpEl.classList.remove('border-rose-500', 'bg-rose-50');
                 }, 700);
-                window.showToast('Access Denied — Invalid password', 'error');
             }
         };
 
