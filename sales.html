@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nawab Kurta - Shop Management</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Html5-QRCode (Phone Camera Barcode Scanner for Exchange Verification) -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+        button {
+            cursor: pointer;
+            user-select: none;
+        }
+        input, textarea, select {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            pointer-events: auto !important;
+        }
+        /* Hide number input spinner arrows globally across Chrome, Safari, Edge, Opera & Firefox */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield !important;
+            appearance: textfield !important;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Main App Container -->
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Desktop Sidebar -->
+        <aside class="hidden md:flex md:w-64 md:flex-col bg-slate-900 text-white flex-shrink-0 transition-all duration-200">
+            <div class="flex items-center justify-between h-16 px-5 bg-slate-950/60 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center shadow-lg shadow-brand-600/30">
+                        <i data-lucide="store" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <span id="sidebar-shop-name" class="font-bold text-base tracking-tight block leading-none">Nawab Kurta</span>
+                        <span class="text-[11px] text-slate-400 font-medium">Shop Management</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-1 px-3 py-5 space-y-1.5 overflow-y-auto">
+                <button type="button" onclick="window.location.href='index.html'" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition-all">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button type="button" onclick="window.location.href='pos.html'" id="nav-pos" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition-all">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span>POS & Billing</span>
+                </button>
+                <button type="button" onclick="window.location.href='sales.html'" id="nav-sales" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-brand-600 text-white shadow-sm">
+                    <i data-lucide="receipt" class="w-5 h-5"></i>
+                    <span>Sales & Invoices</span>
+                </button>
+                <button type="button" onclick="window.location.href='expenses.html'" id="nav-expenses" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition-all">
+                    <i data-lucide="wallet" class="w-5 h-5"></i>
+                    <span>Expenses & P&L</span>
+                </button>
+                <button type="button" onclick="window.location.href='udhaar.html'" id="nav-udhaar" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition-all">
+                    <i data-lucide="book-open-check" class="w-5 h-5"></i>
+                    <span>Udhaar Ledger</span>
+                    <span id="sidebar-udhaar-badge" class="hidden ml-auto bg-amber-500 text-slate-950 text-[10px] font-bold px-1.5 py-0.5 rounded-full">!</span>
+                </button>
+                <button type="button" onclick="window.openBinModal()" id="nav-bin" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 flex-shrink-0"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    <span>Recycle Bin</span>
+                    <span id="sidebar-bin-badge" class="hidden ml-auto bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                </button>
+            </nav>
+
+            <!-- Cloud Status & Settings -->
+            <div class="p-4 m-3 rounded-xl bg-slate-800/80 border border-slate-700/70 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-slate-400 font-medium">Firestore Collection</span>
+                    <span id="sync-badge" class="inline-flex items-center gap-1.5 text-xs font-medium text-amber-400">
+                        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                        Connecting...
+                    </span>
+                </div>
+                <div class="text-[11px] text-slate-300 font-mono break-all bg-slate-900/70 p-2 rounded-lg border border-slate-700/60" id="user-id-display" title="Active Firestore Collection Path">
+                    Path: /nawab_kurta/{doc}
+                </div>
+                <div class="pt-1">
+                    <button type="button" onclick="window.openCloudModal()" class="w-full py-2 px-3 bg-brand-600/30 hover:bg-brand-600/50 border border-brand-500/30 text-xs font-semibold text-brand-200 rounded-lg transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="cloud-cog" class="w-4 h-4"></i>
+                        Cloud Setup & Backup
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden pb-16 md:pb-0">
+            
+            <!-- Top Header -->
+            <header class="h-16 bg-white border-b border-slate-200/80 px-4 md:px-8 flex items-center justify-between flex-shrink-0 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="md:hidden w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white">
+                        <i data-lucide="store" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h1 id="page-title" class="text-base md:text-xl font-bold text-slate-900">Sales History & Tax Invoices</h1>
+                            <button type="button" onclick="window.openCloudModal()" id="header-cloud-pill" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition">
+                                <span id="header-cloud-dot" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                <span id="header-cloud-text">Syncing /nawab_kurta...</span>
+                            </button>
+                        </div>
+                        <p id="current-date-display" class="text-xs text-slate-500 hidden sm:block"></p>
+                    </div>
+                </div>
+
+                <!-- Quick Action Header Buttons -->
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="window.location.href='pos.html'" class="inline-flex items-center gap-1.5 px-3 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs md:text-sm font-semibold rounded-xl shadow-sm transition">
+                        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                        <span>+ Quick Sale</span>
+                    </button>
+                    <button type="button" onclick="window.openBinModal()" title="Recycle Bin (Auto-deletes in 30 days)" class="relative p-2 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 rounded-xl transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                        <span id="header-bin-badge" class="hidden absolute -top-1 -right-1 bg-rose-600 text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center">0</span>
+                    </button>
+                    <button type="button" onclick="window.openCloudModal()" title="Cloud Settings" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition">
+                        <i data-lucide="cloud-cog" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Scrollable Views Container -->
+            <main class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
+
+                <!-- 1. DASHBOARD VIEW -->
+                <!-- dashboard view is in index.html -->
+
+                <!-- 2. POS & BILLING VIEW -->
+                <!-- pos view is in pos.html -->
+
+                <!-- 4. SALES HISTORY & INVOICES VIEW -->
+                <section id="view-sales" class="tab-view space-y-5">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                        <div class="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
+                            <div class="flex flex-col sm:flex-row flex-wrap gap-3 flex-1">
+                                <div class="relative flex-1 min-w-[220px]">
+                                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                                    <input type="text" id="sales-search" oninput="window.renderSalesTable()" placeholder="Search customer name, phone or invoice ID..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                                <select id="sales-mode-filter" onchange="window.renderSalesTable()" class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700">
+                                    <option value="ALL">All Payment Modes</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="UPI">UPI</option>
+                                    <option value="Card">Card</option>
+                                    <option value="Split">Split (Cash + Online)</option>
+                                    <option value="Advance">Advance (Partial Paid)</option>
+                                    <option value="Udhaar">Udhaar (Full Credit)</option>
+                                    <option value="Exchange">Exchange</option>
+                                </select>
+                                <select id="salesDateFilter" onchange="window.handleSalesDateFilterChange()" class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700">
+                                    <option value="TODAY" selected>Today</option>
+                                    <option value="ALL">All Dates</option>
+                                    <option value="YESTERDAY">Yesterday</option>
+                                    <option value="LAST_7">Last 7 Days</option>
+                                    <option value="THIS_MONTH">This Month</option>
+                                    <option value="LAST_MONTH">Last Month</option>
+                                    <option value="CUSTOM">Custom Date Range</option>
+                                </select>
+                            </div>
+                            <button type="button" onclick="window.exportSalesCSV()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition flex items-center justify-center gap-2">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                                <span>Export Sales CSV</span>
+                            </button>
+                        </div>
+
+                        <!-- Custom Date Range Inputs for Sales -->
+                        <div id="salesCustomDateRow" class="hidden pt-2 border-t border-slate-100 flex flex-wrap items-center gap-3 text-xs">
+                            <span class="font-semibold text-slate-600">Custom Range:</span>
+                            <div class="flex items-center gap-1.5">
+                                <label class="text-slate-500">From:</label>
+                                <input type="date" id="salesDateFrom" onchange="window.renderSalesTable()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-medium">
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <label class="text-slate-500">To:</label>
+                                <input type="date" id="salesDateTo" onchange="window.renderSalesTable()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-medium">
+                            </div>
+                        </div>
+
+                        <!-- Filtered Summary Pill (Cash + Online + Total Breakdown) -->
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-slate-100 text-xs">
+                            <span id="sales-filter-summary" class="font-semibold text-slate-600">Showing 0 invoices</span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span id="sales-filter-cash" class="font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">Cash: ₹0</span>
+                                <span id="sales-filter-online" class="font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">Online: ₹0</span>
+                                <span id="sales-filter-udhaar" class="hidden font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">Udhaar: ₹0</span>
+                                <span id="sales-filter-total" class="font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">Filtered Revenue: ₹0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                                        <th class="py-3.5 px-4">Invoice & Date</th>
+                                        <th class="py-3.5 px-4">Customer</th>
+                                        <th class="py-3.5 px-4">Items Sold</th>
+                                        <th class="py-3.5 px-4">Payment / Status</th>
+                                        <th class="py-3.5 px-4 text-right">Total Amount</th>
+                                        <th class="py-3.5 px-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="salesTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. EXPENSE MANAGEMENT & P&L VIEW -->
+                <!-- expenses view is in expenses.html -->
+
+                <!-- 6. UDHAAR (CREDIT / KHATA) LEDGER VIEW -->
+                <!-- udhaar view is in udhaar.html -->
+
+            </main>
+        </div>
+
+        <!-- Mobile Bottom Navigation Bar -->
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 flex items-center justify-around z-30 px-1">
+            <button type="button" onclick="window.location.href='index.html'" id="mnav-dashboard" class="mnav-btn flex flex-col items-center justify-center py-1 px-2 text-slate-500">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="text-[10px] font-semibold mt-0.5">Home</span>
+            </button>
+            <button type="button" onclick="window.location.href='pos.html'" id="mnav-pos" class="mnav-btn flex flex-col items-center justify-center py-1 px-2 text-slate-500">
+                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                <span class="text-[10px] font-semibold mt-0.5">POS Bill</span>
+            </button>
+            <button type="button" onclick="window.location.href='sales.html'" id="mnav-sales" class="mnav-btn flex flex-col items-center justify-center py-1 px-2 text-brand-600">
+                <i data-lucide="receipt" class="w-5 h-5"></i>
+                <span class="text-[10px] font-semibold mt-0.5">Sales</span>
+            </button>
+            <button type="button" onclick="window.location.href='expenses.html'" id="mnav-expenses" class="mnav-btn flex flex-col items-center justify-center py-1 px-2 text-slate-500">
+                <i data-lucide="wallet" class="w-5 h-5"></i>
+                <span class="text-[10px] font-semibold mt-0.5">Expenses</span>
+            </button>
+            <button type="button" onclick="window.location.href='udhaar.html'" id="mnav-udhaar" class="mnav-btn flex flex-col items-center justify-center py-1 px-2 text-slate-500">
+                <i data-lucide="book-open-check" class="w-5 h-5"></i>
+                <span class="text-[10px] font-semibold mt-0.5">Udhaar</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- 5. Printable Digital Receipt / Invoice Modal -->
+    <div id="receipt-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between no-print">
+                <span class="font-semibold text-sm flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> Tax Invoice / Receipt
+                </span>
+                <button type="button" onclick="window.closeReceiptModal()" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Printable Receipt Area -->
+            <div id="printable-receipt" class="p-6 space-y-4 text-slate-800 bg-white">
+                <div class="text-center border-b border-dashed border-slate-300 pb-4">
+                    <h2 id="rcpt-shop-title" class="text-xl font-bold tracking-tight text-slate-900">NAWAB KURTA</h2>
+                    <p id="rcpt-shop-sub" class="text-xs text-slate-500">Shaheen Bagh, New Delhi • Ph: +91 98765 43210</p>
+                    <p id="rcpt-shop-gst" class="text-[11px] text-slate-400 font-mono mt-0.5">GSTIN: 07AABCN1234F1Z5</p>
+                    <span id="rcpt-invoice-no" class="inline-block mt-2 text-xs font-mono bg-slate-100 px-2.5 py-0.5 rounded font-bold">INV-0000</span>
+                </div>
+
+                <div class="flex justify-between text-xs text-slate-600 border-b border-dashed border-slate-200 pb-3">
+                    <div>
+                        <span class="text-slate-400 block">Billed To:</span>
+                        <strong id="rcpt-customer" class="text-slate-800">Walk-in Customer</strong>
+                        <div id="rcpt-phone" class="text-slate-500"></div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-slate-400 block">Date & Payment:</span>
+                        <strong id="rcpt-date" class="text-slate-800"></strong>
+                        <div id="rcpt-mode" class="font-semibold text-brand-600">Cash</div>
+                    </div>
+                </div>
+
+                <table class="w-full text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-slate-400 uppercase">
+                            <th class="py-1.5 text-left">Item</th>
+                            <th class="py-1.5 text-center">Qty</th>
+                            <th class="py-1.5 text-right">Rate</th>
+                            <th class="py-1.5 text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rcpt-items-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+
+                <div class="border-t border-dashed border-slate-300 pt-3 space-y-1 text-xs">
+                    <div class="flex justify-between text-slate-600">
+                        <span>Subtotal</span>
+                        <span id="rcpt-subtotal">₹0</span>
+                    </div>
+                    <div class="flex justify-between text-emerald-600">
+                        <span>Discount</span>
+                        <span id="rcpt-discount">- ₹0</span>
+                    </div>
+                    <div id="rcpt-exchange-row" class="hidden flex justify-between text-indigo-700 font-semibold">
+                        <span id="rcpt-exchange-label">Less Exchange Credit</span>
+                        <span id="rcpt-exchange-credit">- ₹0</span>
+                    </div>
+                    <div class="flex justify-between text-base font-bold text-slate-900 pt-1 border-t border-slate-200">
+                        <span>Grand Total</span>
+                        <span id="rcpt-total">₹0</span>
+                    </div>
+                    <div id="rcpt-advance-rows" class="hidden pt-1.5 mt-1.5 border-t border-dashed border-slate-200 space-y-1">
+                        <div class="flex justify-between text-emerald-700 font-semibold">
+                            <span>Advance Paid</span>
+                            <span id="rcpt-advance-paid">₹0</span>
+                        </div>
+                        <div class="flex justify-between text-rose-600 font-bold text-sm">
+                            <span>Remaining Balance Due</span>
+                            <span id="rcpt-balance-due">₹0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center pt-3 border-t border-dashed border-slate-200">
+                    <p class="text-[11px] text-slate-500">Thank you for shopping at Nawab Kurta! Visit again.</p>
+                </div>
+            </div>
+
+            <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 space-y-2.5 no-print">
+                <div class="flex items-center justify-between gap-2">
+                    <label for="rcpt-print-size" class="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="ruler" class="w-3.5 h-3.5 text-brand-600"></i> Print Size:
+                    </label>
+                    <select id="rcpt-print-size" onchange="localStorage.setItem('nk_rcpt_print_size', this.value)" class="flex-1 max-w-[230px] px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="58mm" selected>58mm Thermal (2-Inch POSiFLOW)</option>
+                        <option value="80mm">80mm Thermal Roll (3-Inch)</option>
+                        <option value="A5">A5 Half-Page Invoice</option>
+                        <option value="A4">A4 Full-Page Invoice</option>
+                    </select>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <button type="button" onclick="window.shareReceiptWhatsApp()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="share-2" class="w-4 h-4"></i> WhatsApp
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="window.printFormattedReceipt()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm">
+                            <i data-lucide="printer" class="w-4 h-4"></i> Print Receipt
+                        </button>
+                        <button type="button" onclick="window.closeReceiptModal()" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-xl">Done</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Edit Sales Invoice Modal (#editSaleModal) -->
+    <div id="editSaleModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col" onclick="event.stopPropagation()">
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i data-lucide="file-pen-line" class="w-5 h-5 text-brand-400"></i>
+                    <div>
+                        <h3 class="font-bold text-sm">Edit Invoice Details</h3>
+                        <p id="editSaleInvoiceLabel" class="text-[11px] text-slate-400 font-mono">INV-0000</p>
+                    </div>
+                </div>
+                <button type="button" onclick="window.closeEditSaleModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form onsubmit="window.saveEditedSale(event)" class="p-6 overflow-y-auto space-y-4 text-xs flex-1">
+                <input type="hidden" id="editSaleId">
+
+                <!-- Customer, Date & Payment Mode -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Customer Name *</label>
+                        <input type="text" id="editSaleCustomer" required placeholder="Walk-in Customer" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Phone / WhatsApp</label>
+                        <input type="tel" id="editSalePhone" placeholder="9876543210" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Invoice Date *</label>
+                        <input type="date" id="editSaleDate" required class="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Payment Method *</label>
+                        <select id="editSalePayMethod" onchange="window.toggleEditSaleSplitBox()" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="Cash">Cash</option>
+                            <option value="UPI">UPI / Online</option>
+                            <option value="Card">Card</option>
+                            <option value="Split">Split (Cash + Online)</option>
+                            <option value="Advance">Advance (Partial Paid + Balance Due)</option>
+                            <option value="Udhaar">Udhaar (Full Credit)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Edit Invoice Split Breakdown Box -->
+                <div id="editSaleSplitBox" class="hidden p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-900">Split Invoice Payment (Cash + Online)</span>
+                        <span class="text-[10px] text-indigo-600 font-semibold">Auto-calculates balance</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Cash Paid (₹)</label>
+                            <input type="number" id="editSaleSplitCash" min="0" step="1" placeholder="0" oninput="window.handleEditSaleSplitInput('cash')" class="w-full px-3 py-1.5 bg-white border border-indigo-200 rounded-lg text-xs font-bold text-slate-900">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Online / UPI Paid (₹)</label>
+                            <input type="number" id="editSaleSplitOnline" min="0" step="1" placeholder="0" oninput="window.handleEditSaleSplitInput('online')" class="w-full px-3 py-1.5 bg-white border border-indigo-200 rounded-lg text-xs font-bold text-slate-900">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Invoice Advance & Remaining Breakdown Box -->
+                <div id="editSaleAdvanceBox" class="hidden p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-amber-900">Advance Paid &amp; Remaining Balance Due</span>
+                        <span class="text-[10px] text-amber-700 font-semibold">Updates linked Udhaar automatically</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Advance Cash (₹)</label>
+                            <input type="number" id="editSaleAdvCash" min="0" step="1" placeholder="0" oninput="window.handleEditSaleAdvanceInput()" class="w-full px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold text-slate-900">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Advance Online (₹)</label>
+                            <input type="number" id="editSaleAdvOnline" min="0" step="1" placeholder="0" oninput="window.handleEditSaleAdvanceInput()" class="w-full px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold text-slate-900">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-rose-700 mb-1">Remaining Due (₹)</label>
+                            <input type="number" id="editSaleAdvRemaining" readonly value="0" class="w-full px-3 py-1.5 bg-rose-50 border border-rose-200 rounded-lg text-xs font-extrabold text-rose-700 cursor-not-allowed">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line Items Section -->
+                <div class="space-y-2 pt-2 border-t border-slate-100">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-slate-700 uppercase tracking-wider text-[11px]">Invoice Line Items</label>
+                        <button type="button" onclick="window.addEditSaleLineItem()" class="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded-xl transition flex items-center gap-1">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i> + Add Line Item
+                        </button>
+                    </div>
+                    <div id="editSaleItemsList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+                </div>
+
+                <!-- Discount & Live Totals Summary -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-200 items-center">
+                    <div class="flex items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="font-semibold text-slate-700">Discount:</span>
+                        <input type="number" id="editSaleDiscount" min="0" placeholder="" oninput="window.recalcEditSaleTotals()" class="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-right font-bold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <select id="editSaleDiscountType" onchange="window.recalcEditSaleTotals()" class="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg font-bold text-slate-700">
+                            <option value="flat">₹ Flat</option>
+                            <option value="percent">% Off</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-slate-900 text-white p-3.5 rounded-xl space-y-1">
+                        <div class="flex justify-between text-slate-400">
+                            <span>Subtotal:</span>
+                            <span id="editSaleSubtotalDisplay" class="font-semibold text-white">₹0</span>
+                        </div>
+                        <div class="flex justify-between text-amber-400">
+                            <span>Discount:</span>
+                            <span id="editSaleDiscountDisplay" class="font-semibold">- ₹0</span>
+                        </div>
+                        <div class="flex justify-between text-sm font-extrabold text-emerald-400 pt-1 border-t border-slate-800">
+                            <span>Updated Grand Total:</span>
+                            <span id="editSaleTotalDisplay">₹0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="window.closeEditSaleModal()" class="px-4 py-2.5 font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-sm flex items-center gap-1.5">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        <span>Save Invoice Changes</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 6B. Exchange Item Picker Modal with Barcode/QR Scan (#exchangePickerModal) -->
+    <div id="exchangePickerModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4" onclick="window.closeExchangePickerModal()">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col" onclick="event.stopPropagation()">
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i data-lucide="arrow-left-right" class="w-5 h-5 text-amber-400"></i>
+                    <div>
+                        <h3 class="font-bold text-sm">Exchange Items from Invoice</h3>
+                        <p id="exchPickerInvoiceLabel" class="text-[11px] text-slate-400 font-mono">INV-0000</p>
+                    </div>
+                </div>
+                <button type="button" onclick="window.closeExchangePickerModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-4 text-xs flex-1">
+                <!-- Scan Returned Garment Tag Bar -->
+                <div class="p-3 bg-indigo-50/80 rounded-xl border border-indigo-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-indigo-900 flex items-center gap-1.5">
+                            <i data-lucide="scan-barcode" class="w-4 h-4 text-indigo-600"></i> Scan Returned Tag (Optional)
+                        </span>
+                        <button type="button" id="sales-exch-cam-btn" onclick="window.toggleSalesExchangeCamera()" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[11px] font-bold inline-flex items-center gap-1">
+                            <i data-lucide="camera" class="w-3.5 h-3.5 text-emerald-400"></i> Camera Scan
+                        </button>
+                    </div>
+                    <form onsubmit="window.handleSalesExchangeScan(event)" class="flex gap-2">
+                        <input type="text" id="sales-exch-scan-input" autocomplete="off" placeholder="Scan returned item barcode/QR (auto-selects item below)..." class="flex-1 px-3 py-1.5 bg-white border border-indigo-200 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button type="submit" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg">Match</button>
+                    </form>
+                    <div id="sales-exch-cam-wrap" class="hidden pt-1">
+                        <div id="sales-exch-camera-reader" class="w-full rounded-xl overflow-hidden bg-slate-950 min-h-[200px]"></div>
+                    </div>
+                </div>
+
+                <!-- Select Returned Items List -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px]">Select Item(s) Being Returned:</span>
+                        <span id="exchPickerTotalCredit" class="font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">Credit: ₹0</span>
+                    </div>
+                    <div id="exchPickerItemsList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
+                <button type="button" onclick="window.closeExchangePickerModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200 rounded-xl">Cancel</button>
+                <button type="button" onclick="window.proceedToPosExchange()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-extrabold rounded-xl shadow-sm flex items-center gap-1.5">
+                    <span>Proceed to POS Exchange</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Page-Specific Sales & Invoices Logic -->
+    <script>
+        window.handleSalesDateFilterChange = () => {
+            const val = document.getElementById('salesDateFilter')?.value || 'TODAY';
+            const row = document.getElementById('salesCustomDateRow');
+            if (row) row.classList.toggle('hidden', val !== 'CUSTOM');
+            window.renderSalesTable();
+        };
+
+        // 4. Sales History, Edit Invoice, Delete Invoice, Exchange Mode & Receipt Modal
+        window.getFilteredSales = () => {
+            const search = (document.getElementById('sales-search')?.value || '').toLowerCase();
+            const mode = document.getElementById('sales-mode-filter')?.value || 'ALL';
+            const dateFilter = document.getElementById('salesDateFilter')?.value || 'TODAY';
+            const customFrom = document.getElementById('salesDateFrom')?.value || '';
+            const customTo = document.getElementById('salesDateTo')?.value || '';
+
+            return window.state.sales.filter(s => {
+                const matchSearch = (s.customerName || '').toLowerCase().includes(search) ||
+                    (s.customerPhone || '').toLowerCase().includes(search) ||
+                    (s.invoiceNo || '').toLowerCase().includes(search);
+                const matchMode = mode === 'ALL' || s.paymentMode === mode;
+                const matchDate = window.matchesDateRange(s.dateStr, s.timestamp, dateFilter, customFrom, customTo);
+                return matchSearch && matchMode && matchDate;
+            });
+        };
+
+        window.renderSalesTable = () => {
+            const tbody = document.getElementById('salesTableBody');
+            if (!tbody) return;
+
+            const filtered = window.getFilteredSales();
+            const activeFiltered = filtered.filter(s => s.status !== 'Refunded');
+
+            let filteredCash = 0;
+            let filteredOnline = 0;
+            let filteredUdhaar = 0;
+            let activeFilteredRev = 0;
+
+            activeFiltered.forEach(s => {
+                const gt = Number(s.grandTotal) || 0;
+                activeFilteredRev += gt;
+
+                if (s.paymentMode === 'Split') {
+                    filteredCash += Number(s.cashAmount) || 0;
+                    filteredOnline += Number(s.onlineAmount) || 0;
+                } else if (s.paymentMode === 'Advance') {
+                    const c = Number(s.cashAmount) || 0;
+                    const o = Number(s.onlineAmount) || 0;
+                    const rem = s.remainingAmount !== undefined ? Number(s.remainingAmount) : Math.max(0, gt - (c + o));
+                    filteredCash += c;
+                    filteredOnline += o;
+                    filteredUdhaar += rem;
+                } else if (s.paymentMode === 'Cash') {
+                    filteredCash += (s.cashAmount !== undefined ? Number(s.cashAmount) : gt);
+                } else if (s.paymentMode === 'UPI' || s.paymentMode === 'Card' || s.paymentMode === 'Online') {
+                    filteredOnline += (s.onlineAmount !== undefined ? Number(s.onlineAmount) : gt);
+                } else if (s.paymentMode === 'Udhaar') {
+                    filteredUdhaar += gt;
+                }
+            });
+
+            const summaryEl = document.getElementById('sales-filter-summary');
+            const cashEl = document.getElementById('sales-filter-cash');
+            const onlineEl = document.getElementById('sales-filter-online');
+            const udhaarEl = document.getElementById('sales-filter-udhaar');
+            const totalEl = document.getElementById('sales-filter-total');
+
+            if (summaryEl) summaryEl.textContent = `Showing ${filtered.length} of ${window.state.sales.length} invoices`;
+            if (cashEl) cashEl.textContent = `Cash: ${formatINR(filteredCash)}`;
+            if (onlineEl) onlineEl.textContent = `Online: ${formatINR(filteredOnline)}`;
+            if (udhaarEl) {
+                udhaarEl.textContent = `Due / Udhaar: ${formatINR(filteredUdhaar)}`;
+                udhaarEl.classList.toggle('hidden', filteredUdhaar <= 0);
+            }
+            if (totalEl) totalEl.textContent = `Filtered Revenue: ${formatINR(activeFilteredRev)}`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400">No sales invoices match the selected filters.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(s => {
+                let items = [];
+                try { items = typeof s.items === 'string' ? JSON.parse(s.items) : (s.items || []); } catch(e) {}
+                const summary = items.map(i => `${i.name} (x${i.qty})`).join(', ');
+                const isExchanged = Boolean(s.exchangedToInvoice);
+                const isExchangeBill = Boolean(s.isExchange || Number(s.exchangeCredit) > 0);
+                const modeBadge = s.paymentMode === 'Exchange' ? 'bg-indigo-100 text-indigo-800' : s.paymentMode === 'Udhaar' ? 'bg-amber-100 text-amber-800' : s.paymentMode === 'Advance' ? 'bg-amber-100 text-amber-900 border border-amber-300' : s.paymentMode === 'Split' ? 'bg-indigo-100 text-indigo-800' : 'bg-emerald-50 text-emerald-700';
+                let splitSub = '';
+                if (s.paymentMode === 'Split') {
+                    splitSub = `<div class="text-[10px] text-slate-500 mt-0.5 font-medium">Cash: ${formatINR(s.cashAmount || 0)} • Online: ${formatINR(s.onlineAmount || 0)}</div>`;
+                } else if (s.paymentMode === 'Advance') {
+                    const advPaid = s.advancePaid !== undefined ? Number(s.advancePaid) : ((Number(s.cashAmount) || 0) + (Number(s.onlineAmount) || 0));
+                    const remDue = s.remainingAmount !== undefined ? Number(s.remainingAmount) : Math.max(0, (Number(s.grandTotal) || 0) - advPaid);
+                    const modeParts = [];
+                    if (Number(s.cashAmount) > 0) modeParts.push(`Cash: ${formatINR(s.cashAmount)}`);
+                    if (Number(s.onlineAmount) > 0) modeParts.push(`Online: ${formatINR(s.onlineAmount)}`);
+                    const breakdownTxt = modeParts.length > 0 ? ` (${modeParts.join(' + ')})` : '';
+                    splitSub = `<div class="text-[10px] text-emerald-700 mt-0.5 font-semibold">Advance: ${formatINR(advPaid)}${breakdownTxt}</div><div class="text-[10px] text-rose-600 font-bold">Remaining Due: ${formatINR(remDue)}</div>`;
+                }
+                if (isExchangeBill) {
+                    splitSub += `<div class="text-[10px] text-indigo-700 mt-0.5 font-semibold">Exchange Credit: -${formatINR(s.exchangeCredit || 0)}${s.exchangeRefInvoiceNo ? ' (' + s.exchangeRefInvoiceNo + ')' : ''}</div>`;
+                }
+                if (isExchanged) {
+                    splitSub += `<div class="text-[10px] text-amber-800 mt-0.5 font-bold">Exchanged &rarr; ${s.exchangedToInvoice}</div>`;
+                }
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition ${isExchanged ? 'bg-amber-50/30' : ''}">
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-slate-900 font-mono text-xs">${s.invoiceNo}</div>
+                            <div class="text-xs text-slate-400">${window.formatDisplayDate(s.dateStr, s.timestamp)}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="font-semibold text-slate-800">${window.escapeHTML(s.customerName)}</div>
+                            <div class="text-xs text-slate-400">${window.escapeHTML(s.customerPhone || 'No phone')}</div>
+                        </td>
+                        <td class="py-3 px-4 max-w-xs truncate text-xs text-slate-600" title="${window.escapeHTML(summary)}">${window.escapeHTML(summary) || '-'}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${modeBadge}">${s.paymentMode}</span>
+                            ${splitSub}
+                        </td>
+                        <td class="py-3 px-4 text-right font-bold text-slate-900">${formatINR(s.grandTotal)}</td>
+                        <td class="py-3 px-4 text-right">
+                            <div class="inline-flex flex-wrap items-center justify-end gap-1">
+                                <button type="button" onclick="window.viewInvoice('${s.id}')" title="View & Print Receipt" class="px-2.5 py-1.5 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 text-slate-700 rounded-lg text-xs font-semibold transition inline-flex items-center gap-1">
+                                    <i data-lucide="printer" class="w-3.5 h-3.5"></i> View
+                                </button>
+                                <button type="button" onclick="window.openEditSaleModal('${s.id}')" title="Edit Invoice" class="px-2.5 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-lg text-xs font-semibold transition inline-flex items-center gap-1">
+                                    <i data-lucide="pen-line" class="w-3.5 h-3.5"></i> Edit
+                                </button>
+                                ${!isExchanged ? `
+                                    <button type="button" onclick="window.openExchangePickerModal('${s.id}')" title="Exchange Item(s) from this Invoice" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 rounded-lg text-xs font-semibold transition inline-flex items-center gap-1">
+                                        <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i> Exchange
+                                    </button>
+                                ` : `
+                                    <span class="px-2 py-1 bg-amber-100 text-amber-900 rounded-lg text-[10px] font-bold">Exchanged</span>
+                                `}
+                                <button type="button" onclick="window.deleteSale('${s.id}')" title="Permanently Delete Invoice" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-semibold transition inline-flex items-center gap-1">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            window.safeIcons();
+        };
+
+        // Edit Invoice Modal Logic
+        window.toggleEditSaleSplitBox = () => {
+            const mode = document.getElementById('editSalePayMethod')?.value || 'Cash';
+            const splitBox = document.getElementById('editSaleSplitBox');
+            const advBox = document.getElementById('editSaleAdvanceBox');
+            const { grandTotal } = window.recalcEditSaleTotals();
+
+            if (splitBox) {
+                if (mode === 'Split') {
+                    splitBox.classList.remove('hidden');
+                    const cInp = document.getElementById('editSaleSplitCash');
+                    const oInp = document.getElementById('editSaleSplitOnline');
+                    if (cInp && oInp) {
+                        const curC = Number(cInp.value) || 0;
+                        const curO = Number(oInp.value) || 0;
+                        if (curC + curO !== grandTotal) {
+                            const half = Math.floor(grandTotal / 2);
+                            cInp.value = half;
+                            oInp.value = Math.max(0, grandTotal - half);
+                        }
+                    }
+                } else {
+                    splitBox.classList.add('hidden');
+                }
+            }
+
+            if (advBox) {
+                if (mode === 'Advance') {
+                    advBox.classList.remove('hidden');
+                    window.handleEditSaleAdvanceInput();
+                } else {
+                    advBox.classList.add('hidden');
+                }
+            }
+        };
+
+        window.handleEditSaleSplitInput = (changedField) => {
+            const { grandTotal } = window.recalcEditSaleTotals();
+            const cInp = document.getElementById('editSaleSplitCash');
+            const oInp = document.getElementById('editSaleSplitOnline');
+            if (!cInp || !oInp) return;
+            if (changedField === 'cash') {
+                let c = Math.max(0, Number(cInp.value) || 0);
+                if (c > grandTotal) { c = grandTotal; cInp.value = c; }
+                oInp.value = Math.max(0, grandTotal - c);
+            } else {
+                let o = Math.max(0, Number(oInp.value) || 0);
+                if (o > grandTotal) { o = grandTotal; oInp.value = o; }
+                cInp.value = Math.max(0, grandTotal - o);
+            }
+        };
+
+        window.handleEditSaleAdvanceInput = () => {
+            const { grandTotal } = window.recalcEditSaleTotals();
+            const cInp = document.getElementById('editSaleAdvCash');
+            const oInp = document.getElementById('editSaleAdvOnline');
+            const rInp = document.getElementById('editSaleAdvRemaining');
+            if (!cInp || !oInp || !rInp) return;
+            let c = Math.max(0, Number(cInp.value) || 0);
+            let o = Math.max(0, Number(oInp.value) || 0);
+            if (c + o > grandTotal) {
+                if (document.activeElement === cInp) {
+                    c = Math.max(0, grandTotal - o);
+                    cInp.value = c;
+                } else {
+                    o = Math.max(0, grandTotal - c);
+                    oInp.value = o;
+                }
+            }
+            rInp.value = Math.max(0, grandTotal - (c + o));
+        };
+
+        window.openEditSaleModal = (saleId) => {
+            const sale = window.state.sales.find(s => s.id === saleId);
+            if (!sale) return;
+
+            document.getElementById('editSaleId').value = sale.id;
+            document.getElementById('editSaleInvoiceLabel').textContent = `${sale.invoiceNo} • Status: ${sale.status || 'Completed'}`;
+            document.getElementById('editSaleCustomer').value = sale.customerName || 'Walk-in Customer';
+            document.getElementById('editSalePhone').value = sale.customerPhone || '';
+            document.getElementById('editSaleDate').value = sale.dateStr || window.getLocalTodayYMD();
+            document.getElementById('editSalePayMethod').value = sale.paymentMode || 'Cash';
+
+            const cInp = document.getElementById('editSaleSplitCash');
+            const oInp = document.getElementById('editSaleSplitOnline');
+            if (cInp) cInp.value = sale.cashAmount !== undefined ? sale.cashAmount : '';
+            if (oInp) oInp.value = sale.onlineAmount !== undefined ? sale.onlineAmount : '';
+
+            const acInp = document.getElementById('editSaleAdvCash');
+            const aoInp = document.getElementById('editSaleAdvOnline');
+            const arInp = document.getElementById('editSaleAdvRemaining');
+            if (acInp) acInp.value = sale.cashAmount !== undefined ? sale.cashAmount : 0;
+            if (aoInp) aoInp.value = sale.onlineAmount !== undefined ? sale.onlineAmount : 0;
+            if (arInp) arInp.value = sale.remainingAmount !== undefined ? sale.remainingAmount : 0;
+
+            const discType = sale.discountType === 'percent' ? 'percent' : 'flat';
+            document.getElementById('editSaleDiscountType').value = discType;
+            const rawDisc = sale.discountRaw !== undefined ? sale.discountRaw : (sale.discountAmount || 0);
+            document.getElementById('editSaleDiscount').value = rawDisc > 0 ? rawDisc : '';
+
+            let parsedItems = [];
+            try {
+                parsedItems = typeof sale.items === 'string' ? JSON.parse(sale.items) : (sale.items || []);
+            } catch (e) {
+                parsedItems = [];
+            }
+
+            window.state.editingSaleItems = parsedItems.map((it, idx) => ({
+                id: it.id || it.productId || ('edit_item_' + idx + '_' + Date.now()),
+                name: it.name || '',
+                qty: Math.max(1, Number(it.qty) || 1),
+                price: Math.max(0, Number(it.price) || 0),
+                costPrice: Number(it.costPrice) || 0
+            }));
+
+            window.renderEditSaleItemsList();
+            window.toggleEditSaleSplitBox();
+            document.getElementById('editSaleModal').classList.remove('hidden');
+            window.safeIcons();
+        };
+
+        window.closeEditSaleModal = () => {
+            document.getElementById('editSaleModal').classList.add('hidden');
+            window.state.editingSaleItems = [];
+        };
+
+        window.renderEditSaleItemsList = () => {
+            const container = document.getElementById('editSaleItemsList');
+            if (!container) return;
+
+            if (window.state.editingSaleItems.length === 0) {
+                container.innerHTML = `<div class="p-4 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">No items in invoice. Click "+ Add Line Item" above.</div>`;
+            } else {
+                container.innerHTML = window.state.editingSaleItems.map((item, index) => `
+                    <div class="grid grid-cols-12 gap-2 items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                        <div class="col-span-6">
+                            <input type="text" value="${(item.name || '').replace(/"/g, '&quot;')}" oninput="window.updateEditSaleItemField(${index}, 'name', this.value)" placeholder="Item Name" required class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-900">
+                        </div>
+                        <div class="col-span-2">
+                            <input type="number" min="1" value="${item.qty}" oninput="window.updateEditSaleItemField(${index}, 'qty', this.value)" placeholder="Qty" required class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-center text-slate-900">
+                        </div>
+                        <div class="col-span-3">
+                            <input type="number" min="0" value="${item.price}" oninput="window.updateEditSaleItemField(${index}, 'price', this.value)" placeholder="Rate ₹" required class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-right text-slate-900">
+                        </div>
+                        <div class="col-span-1 text-right">
+                            <button type="button" onclick="window.removeEditSaleLineItem(${index})" title="Remove Item" class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-sm inline-flex items-center justify-center">&times;</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            window.recalcEditSaleTotals();
+        };
+
+        window.updateEditSaleItemField = (index, field, val) => {
+            const target = window.state.editingSaleItems[index];
+            if (!target) return;
+            if (field === 'name') target.name = val;
+            else if (field === 'qty') target.qty = Math.max(1, parseInt(val, 10) || 1);
+            else if (field === 'price') target.price = Math.max(0, Number(val) || 0);
+            window.recalcEditSaleTotals();
+        };
+
+        window.addEditSaleLineItem = () => {
+            window.state.editingSaleItems.push({
+                id: 'edit_item_' + Date.now(),
+                name: 'New Item',
+                qty: 1,
+                price: 0,
+                costPrice: 0
+            });
+            window.renderEditSaleItemsList();
+        };
+
+        window.removeEditSaleLineItem = (index) => {
+            window.state.editingSaleItems.splice(index, 1);
+            window.renderEditSaleItemsList();
+        };
+
+        window.recalcEditSaleTotals = () => {
+            const subtotal = window.state.editingSaleItems.reduce((sum, i) => sum + ((Number(i.price) || 0) * (Number(i.qty) || 1)), 0);
+            const discInp = document.getElementById('editSaleDiscount');
+            let discVal = Math.max(0, Number(discInp?.value) || 0);
+            const discType = document.getElementById('editSaleDiscountType')?.value || 'flat';
+
+            if (discType === 'percent' && discVal > 100) {
+                discVal = 100;
+                if (discInp) discInp.value = 100;
+            }
+
+            let discountAmount = discType === 'percent' ? Math.round((subtotal * discVal) / 100) : discVal;
+            if (discountAmount > subtotal) discountAmount = subtotal;
+
+            const editSaleId = document.getElementById('editSaleId')?.value;
+            const origSaleForEdit = window.state.sales.find(s => s.id === editSaleId);
+            const exchangeCredit = Number(origSaleForEdit?.exchangeCredit) || 0;
+            const grandTotal = Math.max(0, Math.max(0, subtotal - discountAmount) - exchangeCredit);
+
+            const subEl = document.getElementById('editSaleSubtotalDisplay');
+            const discEl = document.getElementById('editSaleDiscountDisplay');
+            const totEl = document.getElementById('editSaleTotalDisplay');
+
+            if (subEl) subEl.textContent = formatINR(subtotal);
+            if (discEl) discEl.textContent = `- ${formatINR(discountAmount)}`;
+            if (totEl) totEl.textContent = formatINR(grandTotal);
+
+            if (document.getElementById('editSalePayMethod')?.value === 'Advance') {
+                const acInp = document.getElementById('editSaleAdvCash');
+                const aoInp = document.getElementById('editSaleAdvOnline');
+                const arInp = document.getElementById('editSaleAdvRemaining');
+                if (acInp && aoInp && arInp) {
+                    const c = Math.max(0, Number(acInp.value) || 0);
+                    const o = Math.max(0, Number(aoInp.value) || 0);
+                    arInp.value = Math.max(0, grandTotal - (c + o));
+                }
+            }
+
+            return { subtotal, discountAmount, grandTotal, discVal, discType };
+        };
+
+        window.saveEditedSale = async (e) => {
+            if (e && typeof e.preventDefault === 'function') e.preventDefault();
+            const saleId = document.getElementById('editSaleId').value;
+            const sale = window.state.sales.find(s => s.id === saleId);
+            if (!sale) return;
+
+            const validItems = window.state.editingSaleItems.filter(i => (i.name || '').trim() !== '');
+            if (validItems.length === 0) {
+                window.showToast('Invoice must contain at least one item', 'error');
+                return;
+            }
+
+            const customerName = document.getElementById('editSaleCustomer').value.trim() || 'Walk-in Customer';
+            const customerPhone = document.getElementById('editSalePhone').value.trim() || '';
+            const dateStr = document.getElementById('editSaleDate').value || sale.dateStr;
+            const paymentMode = document.getElementById('editSalePayMethod').value || 'Cash';
+
+            if ((paymentMode === 'Udhaar' || paymentMode === 'Advance') && customerName === 'Walk-in Customer') {
+                window.showToast('Please enter Customer Name for Advance / Udhaar invoice!', 'warning');
+                document.getElementById('editSaleCustomer').focus();
+                return;
+            }
+
+            const { subtotal, discountAmount, grandTotal, discVal, discType } = window.recalcEditSaleTotals();
+            const totalCost = validItems.reduce((sum, i) => sum + ((Number(i.costPrice) || 0) * (Number(i.qty) || 1)), 0);
+
+            let cashAmount = paymentMode === 'Cash' ? grandTotal : 0;
+            let onlineAmount = (paymentMode === 'UPI' || paymentMode === 'Card') ? grandTotal : 0;
+            let advancePaid = paymentMode === 'Udhaar' ? 0 : grandTotal;
+            let remainingAmount = paymentMode === 'Udhaar' ? grandTotal : 0;
+
+            if (paymentMode === 'Split') {
+                cashAmount = Math.max(0, Number(document.getElementById('editSaleSplitCash')?.value) || 0);
+                onlineAmount = Math.max(0, Number(document.getElementById('editSaleSplitOnline')?.value) || 0);
+                if (Math.round(cashAmount + onlineAmount) !== Math.round(grandTotal)) {
+                    window.showToast(`Split amounts (₹${cashAmount} + ₹${onlineAmount}) must equal Grand Total (₹${grandTotal})!`, 'error');
+                    return;
+                }
+                advancePaid = grandTotal;
+                remainingAmount = 0;
+            } else if (paymentMode === 'Advance') {
+                cashAmount = Math.max(0, Number(document.getElementById('editSaleAdvCash')?.value) || 0);
+                onlineAmount = Math.max(0, Number(document.getElementById('editSaleAdvOnline')?.value) || 0);
+                advancePaid = cashAmount + onlineAmount;
+                remainingAmount = Math.max(0, grandTotal - advancePaid);
+                if (advancePaid <= 0) {
+                    window.showToast('Please enter Advance Paid amount (or choose Udhaar)!', 'warning');
+                    return;
+                }
+                if (remainingAmount <= 0) {
+                    window.showToast('Remaining due is ₹0 — choose Cash, UPI, or Split for full payment!', 'warning');
+                    return;
+                }
+            }
+
+            const updatedSale = {
+                ...sale,
+                customerName,
+                customerPhone,
+                dateStr,
+                paymentMode,
+                cashAmount,
+                onlineAmount,
+                advancePaid,
+                remainingAmount,
+                subtotal,
+                discountAmount,
+                discountRaw: discVal || 0,
+                discountType: discType,
+                grandTotal,
+                totalCost,
+                items: JSON.stringify(validItems),
+                updatedAt: new Date().toISOString()
+            };
+
+            await window.saveDocument('sales', updatedSale);
+
+            // Sync with Udhaar ledger automatically
+            const linkedUdhaar = window.state.udhaar.find(u =>
+                u.saleId === sale.id ||
+                u.linkedSaleId === sale.id ||
+                (u.notes && sale.invoiceNo && u.notes.includes(sale.invoiceNo))
+            );
+
+            if ((paymentMode === 'Udhaar' || (paymentMode === 'Advance' && remainingAmount > 0)) && updatedSale.status !== 'Refunded') {
+                const dueAmt = paymentMode === 'Advance' ? remainingAmount : grandTotal;
+                const dueNotes = paymentMode === 'Advance'
+                    ? `Bill ${sale.invoiceNo} (Total: ₹${grandTotal}, Advance Paid: ₹${advancePaid})`
+                    : `Credit Bill ${sale.invoiceNo}`;
+                if (linkedUdhaar) {
+                    await window.saveDocument('udhaar', {
+                        ...linkedUdhaar,
+                        partyName: customerName,
+                        phone: customerPhone,
+                        amount: dueAmt,
+                        notes: dueNotes,
+                        status: 'Pending',
+                        dateStr,
+                        updatedAt: new Date().toISOString()
+                    });
+                } else {
+                    const newUdh = {
+                        id: 'udh_' + Date.now(),
+                        docType: 'udhaar',
+                        recordType: 'udhaar',
+                        saleId: sale.id,
+                        linkedSaleId: sale.id,
+                        partyName: customerName,
+                        phone: customerPhone,
+                        type: 'Customer Receivable',
+                        amount: dueAmt,
+                        notes: dueNotes,
+                        status: 'Pending',
+                        dateStr,
+                        timestamp: Date.now(),
+                        updatedAt: new Date().toISOString()
+                    };
+                    await window.saveDocument('udhaar', newUdh);
+                }
+            } else if (linkedUdhaar) {
+                // Payment mode changed away from Udhaar/Advance (e.g. to full Cash/UPI), remove linked pending Udhaar entry
+                await window.removeDocument('udhaar', linkedUdhaar.id);
+            }
+
+            window.closeEditSaleModal();
+            window.showToast(`Invoice ${sale.invoiceNo} updated!`);
+        };
+
+        // Delete Invoice Logic
+        window.deleteSale = (saleId) => {
+            const sale = window.state.sales.find(s => s.id === saleId);
+            if (!sale) return;
+
+            window.openConfirmModal(
+                `Delete Invoice ${sale.invoiceNo}?`,
+                `Move invoice ${sale.invoiceNo} (${formatINR(sale.grandTotal)}) and any linked Udhaar record to the Recycle Bin? (Auto-deletes permanently after 30 days).`,
+                async () => {
+                    const linkedUdhaar = window.state.udhaar.filter(u =>
+                        u.saleId === sale.id ||
+                        u.linkedSaleId === sale.id ||
+                        (u.notes && sale.invoiceNo && u.notes.includes(sale.invoiceNo))
+                    );
+                    for (const u of linkedUdhaar) {
+                        await window.removeDocument('udhaar', u.id);
+                    }
+                    await window.removeDocument('sales', sale.id);
+                    window.showToast(`Invoice ${sale.invoiceNo} moved to Recycle Bin!`);
+                }
+            );
+        };
+
+        // Exchange Item Picker Modal + Barcode/Camera Scan Logic
+        let activeExchangeSale = null;
+        let exchangePickerItems = [];
+        let salesExchScanner = null;
+
+        window.openExchangePickerModal = (saleId) => {
+            const sale = window.state.sales.find(s => s.id === saleId);
+            if (!sale) return;
+            activeExchangeSale = sale;
+
+            let parsedItems = [];
+            try { parsedItems = typeof sale.items === 'string' ? JSON.parse(sale.items) : (sale.items || []); } catch (e) {}
+
+            exchangePickerItems = parsedItems.map((it, idx) => ({
+                id: 'ex_pick_' + idx,
+                name: it.name || 'Item',
+                price: Math.max(0, Number(it.price) || 0),
+                maxQty: Math.max(1, Number(it.qty) || 1),
+                returnQty: Math.max(1, Number(it.qty) || 1),
+                selected: true
+            }));
+
+            document.getElementById('exchPickerInvoiceLabel').textContent = `${sale.invoiceNo} • ${sale.customerName} • ${window.formatDisplayDate(sale.dateStr, sale.timestamp)}`;
+            const scanInp = document.getElementById('sales-exch-scan-input');
+            if (scanInp) scanInp.value = '';
+            window.renderExchangePickerList();
+            document.getElementById('exchangePickerModal').classList.remove('hidden');
+            window.safeIcons();
+            setTimeout(() => scanInp && scanInp.focus(), 60);
+        };
+
+        window.closeExchangePickerModal = async () => {
+            await window.stopSalesExchangeCamera();
+            document.getElementById('exchangePickerModal').classList.add('hidden');
+            activeExchangeSale = null;
+            exchangePickerItems = [];
+        };
+
+        window.renderExchangePickerList = () => {
+            const container = document.getElementById('exchPickerItemsList');
+            const totEl = document.getElementById('exchPickerTotalCredit');
+            if (!container) return;
+
+            const totalCredit = exchangePickerItems
+                .filter(i => i.selected)
+                .reduce((s, i) => s + (i.price * i.returnQty), 0);
+            if (totEl) totEl.textContent = `Credit: ${formatINR(totalCredit)}`;
+
+            if (exchangePickerItems.length === 0) {
+                container.innerHTML = `<div class="p-4 text-center text-slate-400">No items found on this invoice.</div>`;
+                return;
+            }
+
+            container.innerHTML = exchangePickerItems.map((it, idx) => `
+                <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl border ${it.selected ? 'bg-amber-50/70 border-amber-300' : 'bg-slate-50 border-slate-200 opacity-70'}">
+                    <label class="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer">
+                        <input type="checkbox" ${it.selected ? 'checked' : ''} onchange="window.toggleExchangePickerItem(${idx}, this.checked)" class="rounded text-amber-600 focus:ring-amber-500">
+                        <div class="min-w-0">
+                            <div class="font-bold text-slate-900 truncate">${window.escapeHTML(it.name)}</div>
+                            <div class="text-[11px] text-slate-500">Rate: ${formatINR(it.price)} (Sold Qty: ${it.maxQty})</div>
+                        </div>
+                    </label>
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                        <span class="text-[10px] text-slate-500 font-semibold">Ret Qty:</span>
+                        <input type="number" min="1" max="${it.maxQty}" value="${it.returnQty}" onchange="window.updateExchangePickerQty(${idx}, this.value)" class="w-12 px-1.5 py-1 bg-white border border-slate-300 rounded-lg text-center font-bold">
+                        <span class="w-16 text-right font-extrabold text-emerald-700">${formatINR(it.selected ? it.price * it.returnQty : 0)}</span>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.toggleExchangePickerItem = (idx, checked) => {
+            if (exchangePickerItems[idx]) {
+                exchangePickerItems[idx].selected = Boolean(checked);
+                window.renderExchangePickerList();
+            }
+        };
+
+        window.updateExchangePickerQty = (idx, val) => {
+            const it = exchangePickerItems[idx];
+            if (!it) return;
+            it.returnQty = Math.max(1, Math.min(it.maxQty, parseInt(val, 10) || 1));
+            it.selected = true;
+            window.renderExchangePickerList();
+        };
+
+        window.handleSalesExchangeScan = (e) => {
+            if (e && typeof e.preventDefault === 'function') e.preventDefault();
+            const inp = document.getElementById('sales-exch-scan-input');
+            const raw = (inp?.value || '').trim();
+            if (!raw) return;
+
+            let scannedName = raw;
+            let scannedPrice = null;
+            if (raw.includes('|')) {
+                const parts = raw.split('|');
+                scannedName = parts.slice(0, -1).join(' ').trim();
+                scannedPrice = Math.max(0, Number(parts[parts.length - 1].replace(/[^0-9.]/g, '')) || 0);
+            }
+
+            const matchIdx = exchangePickerItems.findIndex(it =>
+                it.name.toLowerCase().includes(scannedName.toLowerCase()) ||
+                scannedName.toLowerCase().includes(it.name.toLowerCase()) ||
+                (scannedPrice !== null && it.price === scannedPrice)
+            );
+
+            if (matchIdx >= 0) {
+                exchangePickerItems[matchIdx].selected = true;
+                window.renderExchangePickerList();
+                window.showToast(`Matched & selected: ${exchangePickerItems[matchIdx].name}`, 'success');
+            } else if (scannedPrice !== null && scannedName) {
+                exchangePickerItems.push({
+                    id: 'ex_scan_' + Date.now(),
+                    name: scannedName,
+                    price: scannedPrice,
+                    maxQty: 10,
+                    returnQty: 1,
+                    selected: true
+                });
+                window.renderExchangePickerList();
+                window.showToast(`Added scanned return tag: ${scannedName} (${formatINR(scannedPrice)})`, 'success');
+            } else {
+                window.showToast('Tag not found on this invoice. Format: Name|Price', 'warning');
+            }
+            if (inp) { inp.value = ''; inp.focus(); }
+        };
+
+        window.toggleSalesExchangeCamera = async () => {
+            const wrap = document.getElementById('sales-exch-cam-wrap');
+            if (!wrap) return;
+            if (!wrap.classList.contains('hidden')) {
+                await window.stopSalesExchangeCamera();
+                return;
+            }
+            if (typeof window.Html5Qrcode !== 'function') {
+                window.showToast('Camera library not loaded', 'error');
+                return;
+            }
+            wrap.classList.remove('hidden');
+            try {
+                const F = window.Html5QrcodeSupportedFormats;
+                const cfg = { verbose: false, experimentalFeatures: { useBarCodeDetectorIfSupported: true } };
+                if (F) cfg.formatsToSupport = [F.QR_CODE, F.CODE_128, F.EAN_13, F.CODE_39];
+                salesExchScanner = new window.Html5Qrcode('sales-exch-camera-reader', cfg);
+                await salesExchScanner.start(
+                    { facingMode: 'environment' },
+                    { fps: 12, qrbox: { width: 220, height: 120 } },
+                    (decodedText) => {
+                        const inp = document.getElementById('sales-exch-scan-input');
+                        if (inp) {
+                            inp.value = decodedText;
+                            window.handleSalesExchangeScan();
+                        }
+                        window.stopSalesExchangeCamera();
+                    },
+                    () => {}
+                );
+            } catch (err) {
+                window.showToast(`Camera error: ${err?.message || err}`, 'error');
+                wrap.classList.add('hidden');
+            }
+        };
+
+        window.stopSalesExchangeCamera = async () => {
+            const wrap = document.getElementById('sales-exch-cam-wrap');
+            if (wrap) wrap.classList.add('hidden');
+            if (salesExchScanner) {
+                try { await salesExchScanner.stop(); } catch (e) {}
+                try { salesExchScanner.clear(); } catch (e) {}
+                salesExchScanner = null;
+            }
+        };
+
+        window.proceedToPosExchange = async () => {
+            if (!activeExchangeSale) return;
+            const selected = exchangePickerItems.filter(i => i.selected);
+            if (selected.length === 0) {
+                window.showToast('Select at least one returned item to exchange!', 'warning');
+                return;
+            }
+
+            const payload = {
+                saleId: activeExchangeSale.id,
+                invoiceNo: activeExchangeSale.invoiceNo,
+                customerName: activeExchangeSale.customerName || '',
+                customerPhone: activeExchangeSale.customerPhone || '',
+                returnedItems: selected.map(i => ({
+                    id: 'ret_' + i.name.toLowerCase().replace(/\s+/g, '_') + '_' + i.price,
+                    name: i.name,
+                    price: i.price,
+                    qty: i.returnQty
+                }))
+            };
+            localStorage.setItem('nk_pending_exchange_v1', JSON.stringify(payload));
+            await window.stopSalesExchangeCamera();
+            window.location.href = 'pos.html';
+        };
+
+        window.viewInvoice = (saleId, fallbackSaleObj = null) => {
+            const s = window.state.sales.find(item => item.id === saleId) || fallbackSaleObj;
+            if (!s) return;
+            window.state.activeReceiptSale = s;
+
+            let items = [];
+            try { items = typeof s.items === 'string' ? JSON.parse(s.items) : (s.items || []); } catch(e) {}
+
+            document.getElementById('rcpt-shop-title').textContent = window.state.shopName;
+            document.getElementById('rcpt-shop-sub').textContent = window.state.shopSub;
+            const gstEl = document.getElementById('rcpt-shop-gst');
+            if (gstEl) gstEl.textContent = window.state.shopGst;
+            document.getElementById('rcpt-invoice-no').textContent = s.invoiceNo;
+            document.getElementById('rcpt-customer').textContent = s.customerName;
+            document.getElementById('rcpt-phone').textContent = s.customerPhone || '';
+            document.getElementById('rcpt-date').textContent = window.formatDisplayDate(s.dateStr, s.timestamp);
+            const advPaidVal = s.advancePaid !== undefined ? Number(s.advancePaid) : ((Number(s.cashAmount) || 0) + (Number(s.onlineAmount) || 0));
+            const remDueVal = s.remainingAmount !== undefined ? Number(s.remainingAmount) : (s.paymentMode === 'Advance' ? Math.max(0, (Number(s.grandTotal) || 0) - advPaidVal) : 0);
+            document.getElementById('rcpt-mode').textContent = `Paid via ${window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount, remDueVal)}`;
+
+            document.getElementById('rcpt-items-body').innerHTML = items.map(it => `
+                <tr>
+                    <td class="py-1.5 font-medium text-slate-800">${window.escapeHTML(it.name)}</td>
+                    <td class="py-1.5 text-center">${it.qty}</td>
+                    <td class="py-1.5 text-right">${formatINR(it.price)}</td>
+                    <td class="py-1.5 text-right font-semibold">${formatINR(it.price * it.qty)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('rcpt-subtotal').textContent = formatINR(s.subtotal);
+            document.getElementById('rcpt-discount').textContent = `- ${formatINR(s.discountAmount || 0)}`;
+            const exchRow = document.getElementById('rcpt-exchange-row');
+            const exchCreditVal = Number(s.exchangeCredit) || 0;
+            if (exchRow) {
+                if (exchCreditVal > 0) {
+                    exchRow.classList.remove('hidden');
+                    const exchLbl = document.getElementById('rcpt-exchange-label');
+                    if (exchLbl) exchLbl.textContent = s.exchangeRefInvoiceNo ? `Exchange Credit (${s.exchangeRefInvoiceNo})` : 'Exchange Credit';
+                    const exchAmt = document.getElementById('rcpt-exchange-credit');
+                    if (exchAmt) exchAmt.textContent = `- ${formatINR(exchCreditVal)}`;
+                } else {
+                    exchRow.classList.add('hidden');
+                }
+            }
+            document.getElementById('rcpt-total').textContent = formatINR(s.grandTotal);
+
+            const advRows = document.getElementById('rcpt-advance-rows');
+            if (advRows) {
+                if (s.paymentMode === 'Advance' || remDueVal > 0) {
+                    advRows.classList.remove('hidden');
+                    const pParts = [];
+                    if (Number(s.cashAmount) > 0) pParts.push(`Cash: ${formatINR(s.cashAmount)}`);
+                    if (Number(s.onlineAmount) > 0) pParts.push(`Online: ${formatINR(s.onlineAmount)}`);
+                    const pSub = pParts.length > 0 ? ` (${pParts.join(' + ')})` : '';
+                    document.getElementById('rcpt-advance-paid').textContent = `${formatINR(advPaidVal)}${pSub}`;
+                    document.getElementById('rcpt-balance-due').textContent = formatINR(remDueVal);
+                } else {
+                    advRows.classList.add('hidden');
+                }
+            }
+
+            const savedRcptSize = localStorage.getItem('nk_rcpt_print_size');
+            const rcptSizeSel = document.getElementById('rcpt-print-size');
+            if (savedRcptSize && rcptSizeSel && Array.from(rcptSizeSel.options).some(o => o.value === savedRcptSize)) {
+                rcptSizeSel.value = savedRcptSize;
+            }
+            document.getElementById('receipt-modal').classList.remove('hidden');
+            window.safeIcons();
+        };
+
+        window.printFormattedReceipt = () => {
+            const s = window.state.activeReceiptSale;
+            if (!s) {
+                window.print();
+                return;
+            }
+            const sizeMode = document.getElementById('rcpt-print-size')?.value || '58mm';
+            let items = [];
+            try { items = typeof s.items === 'string' ? JSON.parse(s.items) : (s.items || []); } catch (e) {}
+
+            const advPaidVal = s.advancePaid !== undefined ? Number(s.advancePaid) : ((Number(s.cashAmount) || 0) + (Number(s.onlineAmount) || 0));
+            const remDueVal = s.remainingAmount !== undefined ? Number(s.remainingAmount) : (s.paymentMode === 'Advance' ? Math.max(0, (Number(s.grandTotal) || 0) - advPaidVal) : 0);
+            const hasAdvance = (s.paymentMode === 'Advance' || remDueVal > 0);
+            const payLabel = window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount, remDueVal);
+
+            const esc = (v) => String(v ?? '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const itemsRowsHtml = items.map(it => `
+                <tr>
+                    <td class="col-item">${esc(it.name)}</td>
+                    <td class="col-qty">${it.qty}</td>
+                    <td class="col-rate">${formatINR(it.price)}</td>
+                    <td class="col-amt">${formatINR(it.price * it.qty)}</td>
+                </tr>
+            `).join('');
+
+            const cssByMode = {
+                '58mm': `
+                    @page { size: 58mm auto; margin: 0; }
+                    html, body { margin: 0; padding: 0; width: 54mm; font-family: Arial, Helvetica, sans-serif; color: #000; background: #fff; font-size: 8.5pt; line-height: 1.25; }
+                    .wrap { width: 52mm; padding: 2mm 1.5mm; box-sizing: border-box; }
+                    .title { font-size: 11pt; font-weight: 900; margin: 0; letter-spacing: 0.3px; }
+                    .sub { font-size: 7pt; margin: 1px 0; }
+                    .inv-badge { display: inline-block; margin-top: 3px; font-family: monospace; font-size: 8pt; font-weight: 800; border: 1px solid #000; padding: 1px 5px; }
+                    .sep { border-top: 1px dashed #000; margin: 5px 0; }
+                    .meta { font-size: 7.5pt; }
+                    .meta-row { display: flex; justify-content: space-between; gap: 4px; }
+                    table { width: 100%; border-collapse: collapse; font-size: 7.5pt; margin: 3px 0; }
+                    th { border-bottom: 1px solid #000; padding: 2px 0; font-weight: 800; text-transform: uppercase; font-size: 7pt; }
+                    td { padding: 2.5px 0; vertical-align: top; }
+                    .col-item { text-align: left; padding-right: 3px; word-break: break-word; }
+                    .col-qty { text-align: center; white-space: nowrap; width: 14%; }
+                    .col-rate { text-align: right; white-space: nowrap; width: 22%; }
+                    .col-amt { text-align: right; font-weight: 700; white-space: nowrap; width: 24%; }
+                    .tot-row { display: flex; justify-content: space-between; font-size: 8pt; margin: 2px 0; }
+                    .grand { font-size: 10.5pt; font-weight: 900; border-top: 1px solid #000; padding-top: 3px; margin-top: 3px; }
+                    .foot { text-align: center; font-size: 7pt; margin-top: 6px; }
+                `,
+                '80mm': `
+                    @page { size: 80mm auto; margin: 0; }
+                    html, body { margin: 0; padding: 0; width: 76mm; font-family: Arial, Helvetica, sans-serif; color: #000; background: #fff; font-size: 9.5pt; line-height: 1.3; }
+                    .wrap { width: 74mm; padding: 3mm 2.5mm; box-sizing: border-box; }
+                    .title { font-size: 13pt; font-weight: 900; margin: 0; }
+                    .sub { font-size: 8pt; margin: 2px 0; }
+                    .inv-badge { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 9pt; font-weight: 800; border: 1px solid #000; padding: 2px 6px; }
+                    .sep { border-top: 1px dashed #000; margin: 6px 0; }
+                    .meta { font-size: 8.5pt; }
+                    .meta-row { display: flex; justify-content: space-between; gap: 6px; }
+                    table { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin: 4px 0; }
+                    th { border-bottom: 1px solid #000; padding: 3px 0; font-weight: 800; text-transform: uppercase; font-size: 8pt; }
+                    td { padding: 3px 0; vertical-align: top; }
+                    .col-item { text-align: left; padding-right: 4px; }
+                    .col-qty { text-align: center; width: 12%; }
+                    .col-rate { text-align: right; width: 22%; }
+                    .col-amt { text-align: right; font-weight: 700; width: 24%; }
+                    .tot-row { display: flex; justify-content: space-between; font-size: 9pt; margin: 2.5px 0; }
+                    .grand { font-size: 12pt; font-weight: 900; border-top: 1px solid #000; padding-top: 4px; margin-top: 4px; }
+                    .foot { text-align: center; font-size: 8pt; margin-top: 8px; }
+                `,
+                'A5': `
+                    @page { size: A5; margin: 10mm; }
+                    html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; color: #0f172a; background: #fff; font-size: 10pt; line-height: 1.4; }
+                    .wrap { width: 100%; }
+                    .title { font-size: 16pt; font-weight: 800; margin: 0; }
+                    .sub { font-size: 9pt; color: #475569; margin: 2px 0; }
+                    .inv-badge { display: inline-block; margin-top: 6px; font-family: monospace; font-size: 10pt; font-weight: 700; background: #f1f5f9; padding: 2px 8px; border-radius: 4px; }
+                    .sep { border-top: 1px dashed #cbd5e1; margin: 10px 0; }
+                    .meta { font-size: 9.5pt; }
+                    .meta-row { display: flex; justify-content: space-between; }
+                    table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 8px 0; }
+                    th { border-bottom: 1.5px solid #cbd5e1; padding: 5px 0; font-weight: 700; text-transform: uppercase; font-size: 8.5pt; color: #64748b; }
+                    td { padding: 5px 0; border-bottom: 1px solid #f1f5f9; }
+                    .col-item { text-align: left; }
+                    .col-qty { text-align: center; }
+                    .col-rate { text-align: right; }
+                    .col-amt { text-align: right; font-weight: 700; }
+                    .tot-row { display: flex; justify-content: space-between; font-size: 10pt; margin: 3px 0; }
+                    .grand { font-size: 13pt; font-weight: 800; border-top: 1.5px solid #0f172a; padding-top: 6px; margin-top: 6px; }
+                    .foot { text-align: center; font-size: 9pt; color: #64748b; margin-top: 14px; }
+                `,
+                'A4': `
+                    @page { size: A4; margin: 14mm; }
+                    html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; color: #0f172a; background: #fff; font-size: 11pt; line-height: 1.45; }
+                    .wrap { max-width: 180mm; margin: 0 auto; }
+                    .title { font-size: 20pt; font-weight: 800; margin: 0; }
+                    .sub { font-size: 10pt; color: #475569; margin: 2px 0; }
+                    .inv-badge { display: inline-block; margin-top: 8px; font-family: monospace; font-size: 11pt; font-weight: 700; background: #f1f5f9; padding: 3px 10px; border-radius: 4px; }
+                    .sep { border-top: 1px dashed #cbd5e1; margin: 14px 0; }
+                    .meta { font-size: 10.5pt; }
+                    .meta-row { display: flex; justify-content: space-between; }
+                    table { width: 100%; border-collapse: collapse; font-size: 10.5pt; margin: 10px 0; }
+                    th { border-bottom: 2px solid #cbd5e1; padding: 6px 0; font-weight: 700; text-transform: uppercase; font-size: 9.5pt; color: #64748b; }
+                    td { padding: 7px 0; border-bottom: 1px solid #f1f5f9; }
+                    .col-item { text-align: left; }
+                    .col-qty { text-align: center; }
+                    .col-rate { text-align: right; }
+                    .col-amt { text-align: right; font-weight: 700; }
+                    .tot-row { display: flex; justify-content: space-between; font-size: 11pt; margin: 4px 0; }
+                    .grand { font-size: 15pt; font-weight: 800; border-top: 2px solid #0f172a; padding-top: 8px; margin-top: 8px; }
+                    .foot { text-align: center; font-size: 10pt; color: #64748b; margin-top: 18px; }
+                `
+            };
+
+            const printWin = window.open('', '_blank');
+            if (!printWin) {
+                window.showToast('Pop-up blocked! Please allow pop-ups to print receipt.', 'error');
+                return;
+            }
+
+            printWin.document.write(`<!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Receipt ${esc(s.invoiceNo)} (${sizeMode})</title>
+                    <style>${cssByMode[sizeMode] || cssByMode['58mm']}</style>
+                </head>
+                <body>
+                    <div class="wrap">
+                        <div style="text-align:center;">
+                            <h2 class="title">${esc(window.state.shopName)}</h2>
+                            <div class="sub">${esc(window.state.shopSub)}</div>
+                            ${window.state.shopGst ? `<div class="sub">${esc(window.state.shopGst)}</div>` : ''}
+                            <div class="inv-badge">${esc(s.invoiceNo)}</div>
+                        </div>
+                        <div class="sep"></div>
+                        <div class="meta">
+                            <div class="meta-row"><span><strong>To:</strong> ${esc(s.customerName)}</span><span><strong>Date:</strong> ${esc(window.formatDisplayDate(s.dateStr, s.timestamp))}</span></div>
+                            ${s.customerPhone ? `<div class="meta-row"><span>Ph: ${esc(s.customerPhone)}</span></div>` : ''}
+                            <div class="meta-row"><span><strong>Pay:</strong> ${esc(payLabel)}</span></div>
+                        </div>
+                        <div class="sep"></div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="col-item">Item</th>
+                                    <th class="col-qty">Qty</th>
+                                    <th class="col-rate">Rate</th>
+                                    <th class="col-amt">Amt</th>
+                                </tr>
+                            </thead>
+                            <tbody>${itemsRowsHtml}</tbody>
+                        </table>
+                        <div class="sep"></div>
+                        <div class="tot-row"><span>Subtotal</span><span>${formatINR(s.subtotal)}</span></div>
+                        ${Number(s.discountAmount) > 0 ? `<div class="tot-row"><span>Discount</span><span>- ${formatINR(s.discountAmount)}</span></div>` : ''}
+                        ${Number(s.exchangeCredit) > 0 ? `<div class="tot-row" style="font-weight:700;"><span>Exchange Credit${s.exchangeRefInvoiceNo ? ' (' + esc(s.exchangeRefInvoiceNo) + ')' : ''}</span><span>- ${formatINR(s.exchangeCredit)}</span></div>` : ''}
+                        <div class="tot-row grand"><span>${Number(s.exchangeCredit) > 0 ? 'NET PAYABLE' : 'GRAND TOTAL'}</span><span>${formatINR(s.grandTotal)}</span></div>
+                        ${Number(s.exchangeBalanceDue) > 0 ? `<div class="tot-row" style="font-weight:800;"><span>Balance / Store Credit</span><span>${formatINR(s.exchangeBalanceDue)}</span></div>` : ''}
+                        ${hasAdvance ? `
+                            <div class="sep"></div>
+                            <div class="tot-row"><span>Advance Paid</span><span>${formatINR(advPaidVal)}</span></div>
+                            <div class="tot-row" style="font-weight:800;"><span>Balance Due</span><span>${formatINR(remDueVal)}</span></div>
+                        ` : ''}
+                        <div class="sep"></div>
+                        <div class="foot">Thank you for shopping at ${esc(window.state.shopName)}!</div>
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() { window.print(); }, 200);
+                        };
+                    <\/script>
+                </body>
+                </html>`);
+            printWin.document.close();
+        };
+
+        window.closeReceiptModal = () => {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        };
+
+        window.shareReceiptWhatsApp = () => {
+            const s = window.state.activeReceiptSale;
+            if (!s) return;
+            let items = [];
+            try { items = typeof s.items === 'string' ? JSON.parse(s.items) : (s.items || []); } catch(e) {}
+            const lines = items.map(i => `• ${i.name} (x${i.qty}) - ₹${i.price * i.qty}`).join('%0A');
+            const advPaidW = s.advancePaid !== undefined ? Number(s.advancePaid) : ((Number(s.cashAmount) || 0) + (Number(s.onlineAmount) || 0));
+            const remDueW = s.remainingAmount !== undefined ? Number(s.remainingAmount) : (s.paymentMode === 'Advance' ? Math.max(0, (Number(s.grandTotal) || 0) - advPaidW) : 0);
+            const advLine = (s.paymentMode === 'Advance' || remDueW > 0)
+                ? `%0A*Advance Paid: ₹${advPaidW}*%0A*Remaining Balance Due: ₹${remDueW}*`
+                : '';
+            const exchLine = Number(s.exchangeCredit) > 0
+                ? `%0A*Less Exchange Credit${s.exchangeRefInvoiceNo ? ' (' + s.exchangeRefInvoiceNo + ')' : ''}: -₹${s.exchangeCredit}*${Number(s.exchangeBalanceDue) > 0 ? '%0A*Balance / Store Credit: ₹' + s.exchangeBalanceDue + '*' : ''}`
+                : '';
+            const text = `*${window.state.shopName}*%0AInvoice: ${s.invoiceNo}%0ADate: ${window.formatDisplayDate(s.dateStr, s.timestamp)}%0ACustomer: ${s.customerName}%0A----------------%0A${lines}%0A----------------%0A${exchLine ? 'Subtotal: ₹' + s.subtotal + exchLine + '%0A' : ''}*Net Total: ₹${s.grandTotal}* (${window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount, remDueW)})${advLine}%0AThank you for shopping with us!`;
+            const digits = (s.customerPhone || '').replace(/\D/g, '');
+            const url = digits.length >= 10 ? `https://wa.me/91${digits.slice(-10)}?text=${text}` : `https://wa.me/?text=${text}`;
+            window.open(url, '_blank');
+        };
+
+        // CSV Export Utilities (Respects Active Filters)
+        function downloadCSV(filename, rows) {
+            const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(",")).join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        window.exportSalesCSV = () => {
+            const list = window.getFilteredSales();
+            const rows = [["Invoice No", "Date", "Customer Name", "Phone", "Payment Mode", "Status", "Grand Total (INR)"]];
+            list.forEach(s => {
+                rows.push([s.invoiceNo, window.formatDisplayDate(s.dateStr, s.timestamp), s.customerName, s.customerPhone, window.formatPaymentLabel(s.paymentMode, s.cashAmount, s.onlineAmount, s.remainingAmount), s.status || 'Completed', s.grandTotal]);
+            });
+            downloadCSV(`NawabKurta_Sales_${window.getLocalTodayYMD()}.csv`, rows);
+            window.showToast(`Exported ${list.length} filtered sales to CSV!`);
+        };
+
+        window.onPageRefresh = () => {
+            window.renderSalesTable();
+        };
+    </script>
+    <script type="module" src="shared.js"></script>
+</body>
+</html>
